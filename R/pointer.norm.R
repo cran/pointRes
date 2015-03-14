@@ -1,7 +1,7 @@
 #' Calculate pointer years using the normalization in a moving window method
 #'
 #'
-#' The function calculates pointer years on a \code{data.frame} of tree-ring series using the normalization in a moving window method introduced by Cropper (1979; cf. Schweingruber et al. 1990). This method normalizes tree growth in year \code{\var{i}} within a moving window of \code{\var{n}} years, thereby providing the number of standard deviations that tree growth deviates in individual years (Cropper values, C). To identify event years, thresholds on the number of standard deviations can be set according to Cropper (1979) and Neuwirth et al. (2007), optionally with different threshold values. The threshold for defining pointer years can be adjusted.
+#' The function calculates pointer years on a \code{data.frame} of tree-ring series using the normalization in a moving window method introduced by Cropper (1979; cf. Schweingruber et al. 1990). This method normalizes tree growth in year \code{\var{i}} within a moving window of \code{\var{n}} years, thereby providing the number of standard deviations that tree growth deviates in individual years (Cropper values, C). To identify event years, one absolute threshold on the number of standard deviations can be set (cf. Cropper 1979), or, alternatively, three intensity classes (cf. Neuwirth et al. 2007). Threshold values for defining event and pointer years can be adjusted.
 #'
 #'
 #' The function normalizes tree growth in year \code{\var{i}} within a moving window of \code{\var{n}} years. For method \code{"Cropper"}, event years are defined as those years having absolute Cropper values above a specified threshold (defaults to |C| > 0.75). For method \code{"Neuwirth"}, three classes of distinct growth deviations can be defined, being 'weak', 'strong' and 'extreme' (defaults to |C| > 1, |C| > 1.28, and |C| > 1.645). The window size can be adjusted, as well as the minimum percentage of trees that should display a positive (or negative) event year for that year to be considered as positive (or negative) pointer year.
@@ -10,16 +10,16 @@
 #'
 #' @usage pointer.norm(data, window = 5, method.thresh = c("Cropper", "Neuwirth"),
 #'              C.thresh = 0.75, N.thresh1 = 1, N.thresh2 = 1.28, 
-#'              N.thresh3 = 1.645, series.thresh = 40) 
+#'              N.thresh3 = 1.645, series.thresh = 75) 
 #'              
 #' @param data a \code{data.frame} with tree-ring series as columns and years as rows (e.g., output of \code{read.rwl} of package dplR)
 #' @param window an \code{integer} specifying the window size (i.e. number of years) to be used to calculate normalized growth deviations. Defaults to 5.
-#' @param method.thresh a \code{character} string of \code{"Cropper"} or \code{"Neuwirth"}, specifying the method to be used to calculate event years. Argument matching is performed.
+#' @param method.thresh a \code{character} string of \code{"Cropper"} or \code{"Neuwirth"}, specifying whether one absolute threshold or three intensity classes should be used for defining event years. Argument matching is performed.
 #' @param C.thresh a \code{numeric} specifying the threshold for identification of event years using method \code{"Cropper"}. Defaults to 0.75.
 #' @param N.thresh1 a \code{numeric} specifying the threshold for identification of weak event years using method \code{"Neuwirth"}. Defaults to 1.
 #' @param N.thresh2 a \code{numeric} specifying the threshold for identification of strong event years using method \code{"Neuwirth"}. Defaults to 1.28.
 #' @param N.thresh3 a \code{numeric} specifying the threshold for identification of extreme event years using method \code{"Neuwirth"}. Defaults to 1.645.
-#' @param series.thresh a \code{numeric} specifying the minimum percentage of trees that should display a positive (or negative) event year for that year to be considered as positive (or negative) pointer year. Defaults to 40.
+#' @param series.thresh a \code{numeric} specifying the minimum percentage of trees that should display a positive (or negative) event year for that year to be considered as positive (or negative) pointer year. Defaults to 75.
 #' @return
 #'
 #' The function returns a \code{list} containing the following components:
@@ -58,25 +58,24 @@
 #' 
 #' @references Cropper, J.P. (1979) Tree-ring skeleton plotting by computer. \emph{Tree-Ring Bulletin} 39: 47-59.
 #' @references Neuwirth, B., Schweingruber, F.H. and Winiger, M. (2007) Spatial patterns of central European pointer years from 1901 to 1971. \emph{Dendrochronologia} 24: 79-89.
-#' @references Schweingruber, F.H., Eckstein, D., Serre-Bachet, F. and Bräker, O.U. (1990) Identification, presentation and interpretation of even years and pointer years in dendrochronology. \emph{Dendrochronologia} 8: 9-38.
+#' @references Schweingruber, F.H., Eckstein, D., Serre-Bachet, F. and Bräker, O.U. (1990) Identification, presentation and interpretation of event years and pointer years in dendrochronology. \emph{Dendrochronologia} 8: 9-38.
 #' 
 #' @examples ## Calculate pointer years on tree-ring series using the method "Cropper"
-#' ## and a user-defined threshold for event-year definition of 1:
+#' ## and a user-defined threshold for event-year definition of 1
 #' data(s033)
 #' py_c <- pointer.norm(s033, window = 5, method.thresh = "Cropper", 
-#'                      C.thresh = 1, series.thresh = 40)
+#'                      C.thresh = 1, series.thresh = 75)
 #' py_c$out
 #'
-#' ## Calculate pointer years on tree-ring series using the method "Neuwirth" 
-#' ## and a moving window of 13 years:
+#' ## Calculate pointer years on tree-ring series using the method "Neuwirth"
 #' data(s033)
-#' py_n <- pointer.norm(s033, window = 13, method.thresh = "Neuwirth", 
-#'                      series.thresh = 40)
+#' py_n <- pointer.norm(s033, window = 5, method.thresh = "Neuwirth", 
+#'                      series.thresh = 75)
 #' py_n$out
 #' @export
 #' 
 pointer.norm <- function(data, window = 5, method.thresh = c("Cropper", "Neuwirth"), C.thresh = 0.75,
-                         N.thresh1 = 1, N.thresh2 = 1.28, N.thresh3 = 1.645, series.thresh = 40) 
+                         N.thresh1 = 1, N.thresh2 = 1.28, N.thresh3 = 1.645, series.thresh = 75) 
 {
   stopifnot(is.numeric(window), length(window) == 1, is.finite(window))
   if (window < 3) {
@@ -134,6 +133,8 @@ pointer.norm <- function(data, window = 5, method.thresh = c("Cropper", "Neuwirt
   }
   rownames(Cvalues) <- yrs[start : (length(yrs) - tail)]
   colnames(Cvalues) <- colnames(data2)
+  
+  #Cvalues<-scale(Cvalues)
   
   type.cropper <- method.thresh2 == "Cropper"
   type.neuwirth <- method.thresh2 == "Neuwirth"

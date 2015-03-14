@@ -42,7 +42,7 @@
 #' @author Marieke van der Maaten-Theunissen and Ernst van der Maaten.
 #'
 #' @references Lloret, F., Keeling, E.G. and Sala, A. (2011) Components of tree resilience: effects of successive low-growth episodes in old ponderosa pine forests. \emph{Oikos} 120: 1909-1920.
-#' @references Schweingruber, F.H., Eckstein, D., Serre-Bachet, F. and \enc{Bräker}{Braker}, O.U. (1990) Identification, presentation and interpretation of even years and pointer years in dendrochronology. \emph{Dendrochronologia} 8: 9-38.
+#' @references Schweingruber, F.H., Eckstein, D., Serre-Bachet, F. and \enc{Bräker}{Braker}, O.U. (1990) Identification, presentation and interpretation of event years and pointer years in dendrochronology. \emph{Dendrochronologia} 8: 9-38.
 #'
 #' @examples ## Calculate resilience components on tree-ring series
 #' data(s033)

@@ -27,7 +27,7 @@ Dot plot.
 The function creates a dot plot showing positive and negative pointer years from \code{lists} of the type as produced by either \code{\link{pointer.norm}} or \code{\link{pointer.rgc}}.
 }
 \details{
-The function makes a dot plot showing pointer years for multiple sites. Positive and negative pointer years are indicated with different symbols. If event years were defined after the method \code{"Neuwirth"} (\code{\link{pointer.norm}}), different fill colors indicate weak, strong and extreme pointer years, based on the most common event year class.
+The function makes a dot plot showing pointer years for multiple sites. Positive and negative pointer years are indicated with different symbols. If event years were defined using \code{method.thresh "Neuwirth"} (\code{\link{pointer.norm}}), different fill colors indicate weak, strong and extreme pointer years, based on the most common event year class.
 
 Non-pointer years are indicated with minus-signs, allowing the assessment of chronology length for individual sites.
 }
@@ -44,10 +44,10 @@ pointer.plot(sites, start.yr = 1950, end.yr = NULL, labels = NULL,
 
 ## Plot pointer years for multiple sites as generated using pointer.norm (method "Neuwirth")
 data(s033)
-site1 <- pointer.norm(s033, window = 13, method.thresh = "Neuwirth",
-                      series.thresh = 40)
-site2 <- pointer.norm(s033, window = 13, method.thresh = "Neuwirth",
-                      series.thresh = 40)
+site1 <- pointer.norm(s033, window = 5, method.thresh = "Neuwirth",
+                      series.thresh = 75)
+site2 <- pointer.norm(s033, window = 5, method.thresh = "Neuwirth",
+                      series.thresh = 75)
 sites <- list(site1, site2)
 site.names <- c("schneetal", "snowvalley")
 pointer.plot(sites, start.yr = 1950, end.yr = NULL, labels = site.names,

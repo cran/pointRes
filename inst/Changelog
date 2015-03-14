@@ -6,3 +6,7 @@
 
 	* Version 1.0.1: small fix
 	* DESCRIPTION: change in Title and Description field
+
+2015-03-13 Marieke van der Maaten-Theunissen <marieketheunissen@gmail.com>
+
+  * Version 1.0.2: doc fix for function pointer.norm

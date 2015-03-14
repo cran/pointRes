@@ -4,7 +4,7 @@
 #' The function creates a bar plot of mean Cropper values from a \code{list} of the type as produced by \code{\link{pointer.norm}} and highlights years identified as pointer years.
 #' 
 #'
-#' The function makes a plot showing mean Cropper values and pointer years. If event years were defined after the method \code{"Neuwirth"} (\code{\link{pointer.norm}}), different fill colors indicate weak, strong and extreme pointer years, based on the most common event year class. Error bars can be set.
+#' The function makes a plot showing mean Cropper values and pointer years. If event years were defined using \code{method.thresh "Neuwirth"} (\code{\link{pointer.norm}}), different fill colors indicate weak, strong and extreme pointer years, based on the most common event year class. Error bars can be set.
 #' 
 #' 
 #' @usage norm.plot(list.name, start.yr = NULL, end.yr = NULL, 
@@ -25,14 +25,14 @@
 #' @examples ## Plot mean Cropper values and pointer years (method "Cropper")
 #' data(s033)
 #' py_c <- pointer.norm(s033, window = 5, method.thresh = "Cropper", 
-#'                      series.thresh = 40)
+#'                      series.thresh = 75)
 #' norm.plot(py_c, start.yr = 1950, end.yr = NULL, 
 #'           sd.disp = FALSE, x.tick.major = 10, x.tick.minor = 5)
 #'
 #' ## Plot mean Cropper values and pointer years (method "Neuwirth")
 #' data(s033)
-#' py_n <- pointer.norm(s033, window = 13, method.thresh = "Neuwirth",
-#'                      series.thresh = 40)
+#' py_n <- pointer.norm(s033, window = 5, method.thresh = "Neuwirth",
+#'                      series.thresh = 75)
 #' norm.plot(py_n, start.yr = 1950, end.yr = NULL, 
 #'           sd.disp = FALSE, x.tick.major = 10, x.tick.minor = 5)
 #'           

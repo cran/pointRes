@@ -25,7 +25,7 @@ Dot plot.
 The function creates a dot plot showing positive and negative event year values from a \code{list} of the type as produced by \code{\link{pointer.norm}} or \code{\link{pointer.rgc}}.
 }
 \details{
-The function makes a dot plot showing event years for individual trees. Positive and negative event years are indicated with different symbols. If event years were defined after the method \code{"Neuwirth"} (\code{\link{pointer.norm}}), different fill colors indicate weak, strong and extreme event years.
+The function makes a dot plot showing event years for individual trees. Positive and negative event years are indicated with different symbols. If event years were defined using \code{method.thresh "Neuwirth"} (\code{\link{pointer.norm}}), different fill colors indicate weak, strong and extreme event years.
 
 Non-event years are indicated with minus-signs, allowing the assessment of individual series length.
 }
@@ -39,8 +39,8 @@ event.plot(py, start.yr = 1950, end.yr = NULL,
 
 ## Plot event years for individual trees as generated using pointer.norm (method "Neuwirth")
 data(s033)
-py_n <- pointer.norm(s033, window = 13, method.thresh = "Neuwirth",
-                     series.thresh = 40)
+py_n <- pointer.norm(s033, window = 5, method.thresh = "Neuwirth",
+                     series.thresh = 75)
 event.plot(py_n, start.yr = 1950, end.yr = NULL,
            x.tick.major = 10, x.tick.minor = 5)
 }

@@ -35,7 +35,7 @@
 #'
 #' @author Marieke van der Maaten-Theunissen and Ernst van der Maaten.
 #'
-#' @references Schweingruber, F.H., Eckstein, D., Serre-Bachet, F. and Bräker, O.U. (1990) Identification, presentation and interpretation of even years and pointer years in dendrochronology. \emph{Dendrochronologia} 8: 9-38.
+#' @references Schweingruber, F.H., Eckstein, D., Serre-Bachet, F. and Bräker, O.U. (1990) Identification, presentation and interpretation of event years and pointer years in dendrochronology. \emph{Dendrochronologia} 8: 9-38.
 #' @references In writing the function, the code of the dplR function \code{pointer} (Pierre Mérian) was used as a reference.
 #'
 #' @examples ## Calculate pointer years on tree-ring series
