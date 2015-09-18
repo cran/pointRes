@@ -4,7 +4,7 @@
 #' The function creates a bar plot of mean relative growth changes from a \code{list} of the type as produced by \code{\link{pointer.rgc}} and highlights years identified as pointer years.
 #' 
 #'
-#' The function makes a plot showing mean relative growth changes and pointer years. Error bars can be set.
+#' The function makes a plot showing mean relative growth changes; pointer years are indicated with dark-gray bars. Error bars can be set.
 #' 
 #' 
 #' @usage rgc.plot(list.name, start.yr = NULL, end.yr = NULL, 
@@ -46,16 +46,16 @@ rgc.plot <- function(list.name, start.yr = NULL, end.yr = NULL,
   if ("dev_mean" %in% colnames(list.name$out) == FALSE) {
     stop("'list.name' is no list output of function pointer.rgc")
   }
-  if(nrow(list.name$out) < 2){
+  if(nrow(list.name$out) < 2) {
     stop("'list.name'$out contains < 2 years and no plot is created")
   }
-  if (!is.null(start.yr) && start.yr < min(list.name$out[, "year"])){
+  if (!is.null(start.yr) && start.yr < min(list.name$out[, "year"])) {
     stop("'start.yr' is out of bounds. By default (start.yr = NULL) the first year is displayed")
   }
-  if (!is.null(end.yr) && end.yr > max(list.name$out[, "year"])){
+  if (!is.null(end.yr) && end.yr > max(list.name$out[, "year"])) {
     stop("'end.yr' is out of bounds. By default (end.yr = NULL) the last year is displayed")
   }
-  if (x.tick.minor > x.tick.major){
+  if (x.tick.minor > x.tick.major) {
     stop("'x.tick.minor' should be smaller then 'x.tick.major'")
   }
   

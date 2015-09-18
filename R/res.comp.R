@@ -49,6 +49,8 @@
 #' res <- res.comp(s033, nb.yrs = 4, res.thresh.neg = 40, series.thresh = 75)
 #' res$out
 #' res$out.select
+#' 
+#' @import stats
 #' @export
 #' 
 res.comp <- function(data, nb.yrs = 4, res.thresh.neg = 40, series.thresh = 75)
@@ -74,7 +76,7 @@ res.comp <- function(data, nb.yrs = 4, res.thresh.neg = 40, series.thresh = 75)
   if (!is.matrix(data2)) {
     stop("'data' must be coercible to a matrix")
   }
-  if(ncol(data2) == 1){
+  if(ncol(data2) == 1) {
     stop("'data' must contain more than one series")
   }
   rnames <- rownames(data2)

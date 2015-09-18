@@ -33,6 +33,8 @@
 #' @import ggplot2
 #' @import gridExtra
 #' @import plyr
+#' @import stats
+#' @import graphics
 #' @export
 #' 
 res.plot <- function(list.name, select.yr = NULL, multi.panel = TRUE)
@@ -44,26 +46,26 @@ res.plot <- function(list.name, select.yr = NULL, multi.panel = TRUE)
   if (is.data.frame(list.name$out.select) == FALSE) {
     stop("'list.name' is no list output of function res.comp")
   }
-  if(is.null(select.yr) && nrow(list.name$out.select) == 0){
+  if(is.null(select.yr) && nrow(list.name$out.select) == 0) {
     stop("no pointer years to display here")
   }
-  if (is.null(select.yr) && all(list.name$out.select[,"nb.series"] < 5)){
+  if (is.null(select.yr) && all(list.name$out.select[,"nb.series"] < 5)) {
     stop("all pointer years have < 5 series and are not displayed")
   }
-  if (is.null(select.yr) && TRUE %in% (list.name$out.select[,"nb.series"] < 5)){
+  if (is.null(select.yr) && TRUE %in% (list.name$out.select[,"nb.series"] < 5)) {
     warning("pointer years with < 5 series are not displayed")
   }
-  if (!is.null(select.yr) && all(subset(list.name$out, list.name$out[,"year"] %in% select.yr)[,"nb.series"] < 5)){
+  if (!is.null(select.yr) && all(subset(list.name$out, list.name$out[,"year"] %in% select.yr)[,"nb.series"] < 5)) {
     stop("all selected years have < 5 series and are not displayed")
   }
-  if(FALSE %in% (select.yr %in% list.name$out[,"year"])){
+  if(FALSE %in% (select.yr %in% list.name$out[,"year"])) {
     stop("the selection under 'select.yr' contains year(s) that are not in the dataset")
   }
   if (TRUE %in% ((subset(list.name$out,
-                         list.name$out[,"year"] %in% select.yr)[,"nb.series"] < 5))){
+                         list.name$out[,"year"] %in% select.yr)[,"nb.series"] < 5))) {
     warning("selected years with < 5 series are not displayed")
   }
-  if(FALSE %in% (select.yr %in% list.name$out.select[,"year"])){
+  if(FALSE %in% (select.yr %in% list.name$out.select[,"year"])) {
     warning("the selection under 'select.yr' contains year(s) not identified as pointer year(s)")
   }
 

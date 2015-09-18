@@ -1,19 +1,19 @@
 #' Calculate pointer years using the relative growth change method
 #'
 #' 
-#' The function calculates pointer years on a \code{data.frame} of tree-ring series using the relative (or abrupt) growth change method as described in Schweingruber et al. (1990). This method relates tree growth in year \code{\var{i}} to the average growth of \code{\var{n}} preceding years. Thresholds for event- and pointer-year calculations can be adjusted.
+#' The function calculates event and pointer years on a \code{data.frame} with tree-ring series using the relative growth change method, described as abrupt growth change method in Schweingruber et al. (1990). This method relates tree growth in year \code{\var{i}} to the average growth of \code{\var{n}} preceding years. Thresholds for event- and pointer-year calculations can be adjusted.
 #'
 #'
-#' The function relates tree growth in year \code{\var{i}} to the average growth of \code{\var{n}} preceding years for individual trees. Resulting relative growth changes are used to identify event years for trees, and these event years to define pointer years for the site.
+#' The function calculates the ratio of tree growth in year \code{\var{i}} and the average growth of \code{\var{n}} preceding years for individual trees. Resulting relative growth changes are used to identify event years for trees, and these event years to define pointer years for the site.
 #' 
-#' Following Schweingruber et al. (1990), \code{\var{nb.yrs}}, \code{\var{rgc.thresh.pos}}, \code{\var{rgc.thresh.neg}} and \code{\var{series.thresh}} are set to 4, 60, 40 and 75 respectively, meaning that a positive or negative pointer year will be defined when at least 75\% of the tree-ring series display an event year with a growth increase or decrease of at least 60 or 40\%, respectively, relative to the average growth in the 4 preceding years.
+#' Following Schweingruber et al. (1990), \code{\var{nb.yrs}}, \code{\var{rgc.thresh.pos}}, \code{\var{rgc.thresh.neg}} and \code{\var{series.thresh}} are set to 4, 60, 40 and 75 respectively, meaning that a positive or negative pointer year will be defined when at least 75\% of the tree-ring series display an event year with a growth increase or decrease of at least 60\% or 40\%, respectively, relative to the average growth in the 4 preceding years.
 #'
 #' Note that the resulting time series are truncated by \code{\var{nb.yrs}} at the beginning inherent to the calculation methods.
 #' 
 #' @usage pointer.rgc(data, nb.yrs = 4, rgc.thresh.pos = 60, rgc.thresh.neg = 40, 
 #'             series.thresh = 75)
 #'
-#' @param data a \code{data.frame} with tree-ring series as columns and years as rows (e.g., output of \code{read.rwl} of package dplR)
+#' @param data a \code{data.frame} with raw tree-ring series as columns and years as rows (e.g., output of \code{read.rwl} of package dplR).
 #' @param nb.yrs an \code{integer} specifying the number of preceding years to be used in calculating relative growth changes. Defaults to 4.
 #' @param rgc.thresh.pos a \code{numeric} specifying the threshold above which a relative growth change (in percentage) for a specific tree and year is considered a positive event year. Defaults to 60.
 #' @param rgc.thresh.neg a \code{numeric} specifying the threshold below which a relative growth change (in percentage) for a specific tree and year is considered a negative event year. Defaults to 40.
@@ -43,6 +43,8 @@
 #' py <- pointer.rgc(s033, nb.yrs = 4, rgc.thresh.pos = 60, rgc.thresh.neg = 40, 
 #'                   series.thresh = 75)
 #' py$out
+#' 
+#' @import stats
 #' @export
 #' 
 pointer.rgc <- function(data, nb.yrs = 4, rgc.thresh.pos = 60, rgc.thresh.neg = 40, series.thresh = 75)
@@ -69,7 +71,7 @@ pointer.rgc <- function(data, nb.yrs = 4, rgc.thresh.pos = 60, rgc.thresh.neg = 
   if (!is.matrix(data2)) {
     stop("'data' must be coercible to a matrix")
   }
-  if(ncol(data2) == 1){
+  if(ncol(data2) == 1) {
     stop("'data' must contain more than one series")
   }
   rnames <- rownames(data2)
@@ -81,12 +83,17 @@ pointer.rgc <- function(data, nb.yrs = 4, rgc.thresh.pos = 60, rgc.thresh.neg = 
   if (nyrs < nb.yrs + 1) {
     stop("'data' must be longer than nb.yrs + 1")
   }
-  avg.pre <- matrix(nrow = nrow(data2) - nb.yrs, ncol = ncol(data2))
-  for(i in (nb.yrs+1):nyrs) {
-    avg.pre[i - nb.yrs,] <- colMeans(data2[(i - nb.yrs):(i - 1),])
+  
+  if (nb.yrs == 1) {
+    rgc <- data2[-1, , drop = FALSE] / data2[-nyrs, , drop = FALSE]
+  } else{
+    avg.pre <- matrix(nrow = nrow(data2) - nb.yrs, ncol = ncol(data2))
+    for(i in (nb.yrs+1):nyrs) {
+      avg.pre[i - nb.yrs,] <- colMeans(data2[(i - nb.yrs):(i - 1),])
+    }
+    rownames(avg.pre) <- yrs[-nb.yrs:-1]
+    rgc <- data2[-nb.yrs:-1, , drop = FALSE] / avg.pre[, , drop = FALSE]
   }
-  rownames(avg.pre) <- yrs[-nb.yrs:-1]
-  rgc <- data2[-nb.yrs:-1, , drop = FALSE] / avg.pre[, , drop = FALSE]
   
   pos.thresh <- rgc.thresh.pos/100 + 1
   neg.thresh <- 1 - rgc.thresh.neg/100
@@ -94,16 +101,16 @@ pointer.rgc <- function(data, nb.yrs = 4, rgc.thresh.pos = 60, rgc.thresh.neg = 
   EYvalues <- ifelse(EYvalues <= neg.thresh, -1, EYvalues) 
   EYvalues <- ifelse(EYvalues == 1 | EYvalues == (-1), EYvalues, 0)
   
-       year <- yrs[-nb.yrs:-1]
+  year <- yrs[-nb.yrs:-1]
   nb.series <- rowSums(!is.na(rgc))
-   perc.pos <- rowSums(rgc >= pos.thresh, na.rm = TRUE)/nb.series * 100
-   perc.neg <- rowSums(rgc <= neg.thresh, na.rm = TRUE)/nb.series * 100
-    nat.y.1 <- pmax(0, perc.pos - (series.thresh - 1e-07))
-    nat.y.2 <- pmax(0, perc.neg - (series.thresh - 1e-07))
-     nature <- sign(nat.y.1 - nat.y.2)
-   dev_mean <- (rowMeans(rgc, na.rm = TRUE) - 1) * 100
-     dev_sd <- apply(rgc, 1, function(x) sd(x, na.rm = TRUE)) * 100
-        
+  perc.pos <- rowSums(rgc >= pos.thresh, na.rm = TRUE)/nb.series * 100
+  perc.neg <- rowSums(rgc <= neg.thresh, na.rm = TRUE)/nb.series * 100
+  nat.y.1 <- pmax(0, perc.pos - (series.thresh - 1e-07))
+  nat.y.2 <- pmax(0, perc.neg - (series.thresh - 1e-07))
+  nature <- sign(nat.y.1 - nat.y.2)
+  dev_mean <- (rowMeans(rgc, na.rm = TRUE) - 1) * 100
+  dev_sd <- apply(rgc, 1, function(x) sd(x, na.rm = TRUE)) * 100
+  
   out <- data.frame(year, nb.series, perc.pos, perc.neg, nature, dev_mean, dev_sd, row.names = NULL)
   out[,c(3,4,6,7)] <- round(out[,c(3,4,6,7)], 2)
   

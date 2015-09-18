@@ -4,7 +4,7 @@
 #' The function creates a dot plot showing positive and negative pointer years from \code{lists} of the type as produced by either \code{\link{pointer.norm}} or \code{\link{pointer.rgc}}.
 #' 
 #'
-#' The function makes a dot plot showing pointer years for multiple sites. Positive and negative pointer years are indicated with different symbols. If event years were defined using \code{method.thresh "Neuwirth"} (\code{\link{pointer.norm}}), different fill colors indicate weak, strong and extreme pointer years, based on the most common event year class.
+#' The function makes a dot plot showing pointer years for multiple sites. Positive and negative pointer years are indicated with different symbols. If event years were defined using \code{method.thresh "Neuwirth"} (\code{\link{pointer.norm}}), different tones of gray indicate weak, strong and extreme pointer years, based on the most common event year class.
 #' 
 #' Non-pointer years are indicated with minus-signs, allowing the assessment of chronology length for individual sites.
 #' 
@@ -30,6 +30,7 @@
 #' site2 <- pointer.rgc(s033, nb.yrs = 4, rgc.thresh.pos = 60, rgc.thresh.neg = 40, 
 #'                      series.thresh = 75)
 #' sites <- list(site1, site2)
+#' site.names <- c("schneetal", "snowvalley")
 #' pointer.plot(sites, start.yr = 1950, end.yr = NULL, labels = NULL,
 #'              x.tick.major = 10, x.tick.minor = 5) 
 #'
@@ -46,13 +47,14 @@
 #'            
 #' @import ggplot2
 #' @import plyr
-#' @import TripleR         
+#' @import TripleR
+#' @import stats        
 #' @export
 #' 
 pointer.plot <- function(list.sites, start.yr = NULL, end.yr = NULL, labels = NULL, x.tick.major = 10, x.tick.minor = 5) 
 {
   stopifnot(is.list(list.sites))
-  for(i in 1:length(list.sites)){
+  for(i in 1:length(list.sites)) {
     if(FALSE %in% (class(list.sites[[i]])[1] == "pointer.rgc") & FALSE %in% (class(list.sites[[i]])[1] == "pointer.norm")){
       stop("'list.sites' contains list(s) that are no output of function pointer.rgc or pointer.norm")
     }

@@ -4,7 +4,7 @@
 #' The function creates a dot plot showing positive and negative event year values from a \code{list} of the type as produced by \code{\link{pointer.norm}} or \code{\link{pointer.rgc}}.
 #' 
 #'
-#' The function makes a dot plot showing event years for individual trees. Positive and negative event years are indicated with different symbols. If event years were defined using \code{method.thresh "Neuwirth"} (\code{\link{pointer.norm}}), different fill colors indicate weak, strong and extreme event years.
+#' The function makes a dot plot showing event years for individual trees. Positive and negative event years are indicated with different symbols. If event years were defined using \code{method.thresh "Neuwirth"} (\code{\link{pointer.norm}}), different tones of gray indicate weak, strong and extreme event years.
 #' 
 #' Non-event years are indicated with minus-signs, allowing the assessment of individual series length.
 #' 
@@ -38,6 +38,7 @@
 #'            
 #' @import ggplot2
 #' @import plyr
+#' @import stats
 #' @export
 #' 
 event.plot <- function(list.name, start.yr = NULL, end.yr = NULL, x.tick.major = 10, x.tick.minor = 5) 
@@ -49,13 +50,13 @@ event.plot <- function(list.name, start.yr = NULL, end.yr = NULL, x.tick.major =
   if (is.matrix(list.name$EYvalues) == FALSE) {
     stop("'list.name' is no list output of function pointer.rgc or pointer.norm")
   }
-  if (!is.null(start.yr) && start.yr < min(list.name$out[, "year"])){
+  if (!is.null(start.yr) && start.yr < min(list.name$out[, "year"])) {
     stop("'start.yr' is out of bounds. By default (start.yr = NULL) the first year is displayed")
   }
-  if (!is.null(end.yr) && end.yr > max(list.name$out[, "year"])){
+  if (!is.null(end.yr) && end.yr > max(list.name$out[, "year"])) {
     stop("'end.yr' is out of bounds. By default (end.yr = NULL) the last year is displayed")
   }
-  if (x.tick.minor > x.tick.major){
+  if (x.tick.minor > x.tick.major) {
     stop("'x.tick.minor' should be smaller then 'x.tick.major'")
   }
  
