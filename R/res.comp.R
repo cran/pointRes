@@ -1,13 +1,6 @@
 #' Calculate resilience components: resistance, recovery, resilience and relative resilience
 #'
-#' 
-#' The function calculates resilience components on a \code{data.frame} of tree-ring series after Lloret et al. (2011), useful to analyze growth of individual trees prior, during and after extreme events / disturbances. The component 'resistance' is conceptually identical to 'abrupt growth changes' as described in Schweingruber et al. (1990). To identify negative event and pointer years, thresholds can be set as for the function \code{\link{pointer.rgc}}. 'Recovery' is the ability of tree growth to recover after disturbance, whereas 'resilience' reflects the ability of trees to reach pre-disturbance growth levels. Weighting of the resilience by the experienced growth reduction results in 'relative resilience'.
-#'
-#' The function calculates the resilience components resistance, recovery, resilience and relative resilience as described in Lloret et al. (2011). A threshold on resistance can be set to identify negative event years for trees (cf. \code{\var{rgc.thresh.neg}} in function \code{\link{pointer.rgc}}), which are used to define negative pointer years for the site.
-#' 
-#' If \code{\var{nb.yrs}}, \code{\var{res.thresh.neg}} and \code{\var{series.thresh}} are set to 4, 40 and 75 respectively, a negative pointer year will be defined when at least 75\% of the tree-ring series display an event year with resistance values indicating a growth decrease of at least 40\%, relative to the average growth in the 4 preceding years. The output provides the resilience components for all possible years, as well as for the selected pointer years separately.
-#' 
-#' Note that the resulting time series are truncated by \code{\var{nb.yrs}} at both ends inherent to the calculation methods. 
+#' @description The function calculates resilience components on a \code{data.frame} of tree-ring series after Lloret et al. (2011), useful to analyze growth of individual trees prior, during and after extreme events / disturbances. The component 'resistance' is conceptually identical to 'abrupt growth changes' as described in Schweingruber et al. (1990). To identify negative event and pointer years, thresholds can be set as for the function \code{\link{pointer.rgc}}. 'Recovery' is the ability of tree growth to recover after disturbance, whereas 'resilience' reflects the ability of trees to reach pre-disturbance growth levels. Weighting of the resilience by the experienced growth reduction results in 'relative resilience'.
 #'
 #' @usage res.comp(data, nb.yrs = 4, res.thresh.neg = 40, series.thresh = 75)
 #'
@@ -15,9 +8,15 @@
 #' @param nb.yrs an \code{integer} specifying the number of years for pre- and post-disturbance periods to be considered in calculating resilience components. Defaults to 4.
 #' @param res.thresh.neg a \code{numeric} specifying the threshold below which the resistance, expressed as a percentual change (i.e. relative growth reduction), is considered a negative event year for individual trees and years. Defaults to 40.
 #' @param series.thresh a \code{numeric} specifying the minimum percentage of trees that should display a negative event year for that year to be considered as negative pointer year. Defaults to 75.
-#' @return 
 #' 
-#' The function returns a \code{list} containing the following components:
+#' @details The function calculates the resilience components resistance, recovery, resilience and relative resilience as described in Lloret et al. (2011). A threshold on resistance can be set to identify negative event years for trees (cf. \code{\var{rgc.thresh.neg}} in function \code{\link{pointer.rgc}}), which are used to define negative pointer years for the site.
+#'
+#' If \code{\var{nb.yrs}}, \code{\var{res.thresh.neg}} and \code{\var{series.thresh}} are set to 4, 40 and 75 respectively, a negative pointer year will be defined when at least 75\% of the tree-ring series display an event year with resistance values indicating a growth decrease of at least 40\%, relative to the average growth in the 4 preceding years. The output provides the resilience components for all possible years, as well as for the selected pointer years separately.
+#' 
+#' Note that the resulting time series are truncated by \code{\var{nb.yrs}} at both ends inherent to the calculation methods. 
+#'
+#' @return 
+#' #' The function returns a \code{list} containing the following components:
 #' \item{resist}{a \code{matrix} with resistance values (i.e. relative growth changes) for individual tree-ring series}
 #' \item{EYvalues}{a \code{matrix} indicating negative (-1) and non-event years (0) for individual tree-ring series}
 #' \item{recov}{a \code{matrix} with recovery values for individual tree-ring series}
@@ -51,25 +50,26 @@
 #' res$out.select
 #' 
 #' @import stats
-#' @export
+#' 
+#' @export res.comp
 #' 
 res.comp <- function(data, nb.yrs = 4, res.thresh.neg = 40, series.thresh = 75)
 {
   stopifnot(is.numeric(nb.yrs), length(nb.yrs) == 1, is.finite(nb.yrs))
-  if (nb.yrs < 1) {
+  if(nb.yrs < 1) {
     stop("'nb.yrs' must be > 0")
   }
   stopifnot(is.numeric(res.thresh.neg), length(res.thresh.neg) == 1, 
             is.finite(res.thresh.neg))
-  if (res.thresh.neg < 0) {
+  if(res.thresh.neg < 0) {
     stop("'res.thresh.neg' must be > 0")
   }
-  if (res.thresh.neg > 100) {
+  if(res.thresh.neg > 100) {
     warning("res.thresh.neg' > 100 is unusual")
   }
   stopifnot(is.numeric(series.thresh), length(series.thresh) == 
               1, is.finite(series.thresh))
-  if (series.thresh < 0 || series.thresh > 100) {
+  if(series.thresh < 0 || series.thresh > 100) {
     stop("'series.thresh' must range from 0 to 100")
   }
   data2 <- as.matrix(data)

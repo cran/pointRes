@@ -1,11 +1,6 @@
 #' Plot mean relative growth changes and pointer years
 #'
-#' 
-#' The function creates a bar plot of mean relative growth changes from a \code{list} of the type as produced by \code{\link{pointer.rgc}} and highlights years identified as pointer years.
-#' 
-#'
-#' The function makes a plot showing mean relative growth changes; pointer years are indicated with dark-gray bars. Error bars can be set.
-#' 
+#' @description The function creates a bar plot of mean relative growth changes from a \code{list} of the type as produced by \code{\link{pointer.rgc}} and highlights years identified as pointer years.
 #' 
 #' @usage rgc.plot(list.name, start.yr = NULL, end.yr = NULL, 
 #'          sd.disp = FALSE, x.tick.major = 10, x.tick.minor = 5)
@@ -16,8 +11,10 @@
 #' @param sd.disp a \code{logical} specifying whether error bars (stdev) should be displayed. Defaults to FALSE.
 #' @param x.tick.major an \code{integer} controlling the major x-axis tick labels. Defaults to 10 years.
 #' @param x.tick.minor an \code{integer} controlling the minor x-axis ticks. Defaults to 5 years.
-#' @return 
 #' 
+#' @details The function makes a plot showing mean relative growth changes; pointer years are indicated with dark-gray bars. Error bars can be set.
+#'
+#' @return 
 #' Bar plot.
 #'
 #' @author Marieke van der Maaten-Theunissen and Ernst van der Maaten.
@@ -30,32 +27,33 @@
 #'          sd.disp = FALSE, x.tick.major = 10, x.tick.minor = 5)
 #' 
 #' @import ggplot2
-#' @import plyr
-#' @export
+#' @importFrom plyr round_any
+#' 
+#' @export rgc.plot
 #' 
 rgc.plot <- function(list.name, start.yr = NULL, end.yr = NULL,
                      sd.disp = FALSE, x.tick.major = 10, x.tick.minor = 5)
 {
   stopifnot(is.list(list.name))
-  if (class(list.name)[1] != "pointer.rgc") {
+  if(class(list.name)[1] != "pointer.rgc") {
     stop("'list.name' is no list output of function pointer.rgc")
   }
-  if (is.data.frame(list.name$out) == FALSE) {
+  if(is.data.frame(list.name$out) == FALSE) {
     stop("'list.name' is no list output of function pointer.rgc")
   }
-  if ("dev_mean" %in% colnames(list.name$out) == FALSE) {
+  if("dev_mean" %in% colnames(list.name$out) == FALSE) {
     stop("'list.name' is no list output of function pointer.rgc")
   }
   if(nrow(list.name$out) < 2) {
     stop("'list.name'$out contains < 2 years and no plot is created")
   }
-  if (!is.null(start.yr) && start.yr < min(list.name$out[, "year"])) {
+  if(!is.null(start.yr) && start.yr < min(list.name$out[, "year"])) {
     stop("'start.yr' is out of bounds. By default (start.yr = NULL) the first year is displayed")
   }
-  if (!is.null(end.yr) && end.yr > max(list.name$out[, "year"])) {
+  if(!is.null(end.yr) && end.yr > max(list.name$out[, "year"])) {
     stop("'end.yr' is out of bounds. By default (end.yr = NULL) the last year is displayed")
   }
-  if (x.tick.minor > x.tick.major) {
+  if(x.tick.minor > x.tick.major) {
     stop("'x.tick.minor' should be smaller then 'x.tick.major'")
   }
   
@@ -72,7 +70,7 @@ rgc.plot <- function(list.name, start.yr = NULL, end.yr = NULL,
   nat.levels <- c(-1, 0, 1)
   fill.levels <- c("#636363", "#f0f0f0", "#636363")
   
-  if(sd.disp){
+  if(sd.disp) {
   limits <- aes(ymax = dev_mean + dev_sd, ymin = dev_mean - dev_sd)
   
   pl <- ggplot(data3, aes(x = year, y = dev_mean, fill = factor(nature))) 
@@ -84,7 +82,8 @@ rgc.plot <- function(list.name, start.yr = NULL, end.yr = NULL,
                        limits = c(start.yr3-1, end.yr3+1)) +
     ylab("mean growth deviation (%)") + theme_bw() +
     geom_errorbar(limits, width=0.25, colour = "gray60")
-  } else{
+  }
+  else {
     pl <- ggplot(data3, aes(x = year, y = dev_mean, fill = factor(nature))) 
     pl + geom_bar(stat = "identity", position = "identity", colour = "black") +
       scale_fill_manual(limits = nat.levels, values = fill.levels) +

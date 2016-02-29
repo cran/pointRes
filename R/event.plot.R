@@ -1,12 +1,6 @@
 #' Plot event years for individual trees
 #'
-#' 
-#' The function creates a dot plot showing positive and negative event year values from a \code{list} of the type as produced by \code{\link{pointer.norm}} or \code{\link{pointer.rgc}}.
-#' 
-#'
-#' The function makes a dot plot showing event years for individual trees. Positive and negative event years are indicated with different symbols. If event years were defined using \code{method.thresh "Neuwirth"} (\code{\link{pointer.norm}}), different tones of gray indicate weak, strong and extreme event years.
-#' 
-#' Non-event years are indicated with minus-signs, allowing the assessment of individual series length.
+#' @description The function creates a dot plot showing positive and negative event year values from a \code{list} of the type as produced by \code{\link{pointer.norm}} or \code{\link{pointer.rgc}}.
 #' 
 #' @usage event.plot(list.name, start.yr = NULL, end.yr = NULL,
 #'            x.tick.major = 10, x.tick.minor = 5) 
@@ -16,8 +10,12 @@
 #' @param end.yr an \code{integer} specifying the last year to be plotted. Defaults to the last year with data if \code{\var{end.yr}} is \code{NULL}.
 #' @param x.tick.major an \code{integer} controlling the major x-axis tick labels. Defaults to 10 years.
 #' @param x.tick.minor an \code{integer} controlling the minor x-axis ticks. Defaults to 5 years.
-#' @return 
 #' 
+#' @details The function makes a dot plot showing event years for individual trees. Positive and negative event years are indicated with different symbols. If event years were defined using \code{method.thresh "Neuwirth"} (\code{\link{pointer.norm}}), different tones of gray indicate weak, strong and extreme event years.
+#' 
+#' Non-event years are indicated with minus-signs, allowing the assessment of individual series length.
+#' 
+#' @return 
 #' Dot plot.
 #'
 #' @author Marieke van der Maaten-Theunissen and Ernst van der Maaten.
@@ -37,26 +35,28 @@
 #'            x.tick.major = 10, x.tick.minor = 5) 
 #'            
 #' @import ggplot2
-#' @import plyr
 #' @import stats
-#' @export
+#' @importFrom plyr round_any
+#' @importFrom TripleR matrix2long
+#' 
+#' @export event.plot
 #' 
 event.plot <- function(list.name, start.yr = NULL, end.yr = NULL, x.tick.major = 10, x.tick.minor = 5) 
 {
   stopifnot(is.list(list.name))
-  if (FALSE %in% (class(list.name)[1] == "pointer.rgc") & FALSE %in% (class(list.name)[1] == "pointer.norm")) {
+  if(FALSE %in% (class(list.name)[1] == "pointer.rgc") & FALSE %in% (class(list.name)[1] == "pointer.norm")) {
     stop("'list.name' is no list output of function pointer.rgc or pointer.norm")
   }
-  if (is.matrix(list.name$EYvalues) == FALSE) {
+  if(is.matrix(list.name$EYvalues) == FALSE) {
     stop("'list.name' is no list output of function pointer.rgc or pointer.norm")
   }
-  if (!is.null(start.yr) && start.yr < min(list.name$out[, "year"])) {
+  if(!is.null(start.yr) && start.yr < min(list.name$out[, "year"])) {
     stop("'start.yr' is out of bounds. By default (start.yr = NULL) the first year is displayed")
   }
-  if (!is.null(end.yr) && end.yr > max(list.name$out[, "year"])) {
+  if(!is.null(end.yr) && end.yr > max(list.name$out[, "year"])) {
     stop("'end.yr' is out of bounds. By default (end.yr = NULL) the last year is displayed")
   }
-  if (x.tick.minor > x.tick.major) {
+  if(x.tick.minor > x.tick.major) {
     stop("'x.tick.minor' should be smaller then 'x.tick.major'")
   }
  
@@ -88,7 +88,8 @@ event.plot <- function(list.name, start.yr = NULL, end.yr = NULL, x.tick.major =
       scale_x_continuous(breaks = seq(start.yr3, end.yr3, x.tick.major), 
                          minor_breaks = seq(start.yr3, end.yr3, x.tick.minor),
                          limits = c(start.yr3, end.yr3))
-  } else{
+  }
+  else {
     int.levels <- c(-3, -2, -1, 0, 1, 2, 3)
     fill.levels <- c( "black", "#bdbdbd", "white" , "#bdbdbd", "white", "#bdbdbd", "black")
     label.levels <- c("negative extreme", "negative strong", "negative weak",

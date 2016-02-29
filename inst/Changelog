@@ -9,11 +9,16 @@
 
 2015-03-13 Marieke van der Maaten-Theunissen <marieketheunissen@gmail.com>
 
-  * Version 1.0.2: doc fix for function pointer.norm
+	* Version 1.0.2: doc fix for function pointer.norm
   
 2015-09-18 Marieke van der Maaten-Theunissen <marieketheunissen@gmail.com>
 
-  * Version 1.1.0: new function lowpass13
-  * small fix for function pointer.rgc + small doc fixes (thanks to Gottfried Jetschke)
-  * NAMESPACE: 'stats' and 'graphics' added as imports
-  * CITATION file added
+	* Version 1.1.0: new function lowpass13
+	* small fix for function pointer.rgc + small doc fixes (thanks to Gottfried Jetschke)
+	* NAMESPACE: 'stats' and 'graphics' added as imports
+	* CITATION file added
+	
+2016-02-28 Marieke van der Maaten-Theunissen <marieketheunissen@gmail.com>
+
+	* Version 1.1.1: small bug fix in res.plot
+	* updated import tags for 'gridExtra', 'plyr' and 'TripleR'

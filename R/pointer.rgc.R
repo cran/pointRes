@@ -1,14 +1,7 @@
 #' Calculate pointer years using the relative growth change method
 #'
 #' 
-#' The function calculates event and pointer years on a \code{data.frame} with tree-ring series using the relative growth change method, described as abrupt growth change method in Schweingruber et al. (1990). This method relates tree growth in year \code{\var{i}} to the average growth of \code{\var{n}} preceding years. Thresholds for event- and pointer-year calculations can be adjusted.
-#'
-#'
-#' The function calculates the ratio of tree growth in year \code{\var{i}} and the average growth of \code{\var{n}} preceding years for individual trees. Resulting relative growth changes are used to identify event years for trees, and these event years to define pointer years for the site.
-#' 
-#' Following Schweingruber et al. (1990), \code{\var{nb.yrs}}, \code{\var{rgc.thresh.pos}}, \code{\var{rgc.thresh.neg}} and \code{\var{series.thresh}} are set to 4, 60, 40 and 75 respectively, meaning that a positive or negative pointer year will be defined when at least 75\% of the tree-ring series display an event year with a growth increase or decrease of at least 60\% or 40\%, respectively, relative to the average growth in the 4 preceding years.
-#'
-#' Note that the resulting time series are truncated by \code{\var{nb.yrs}} at the beginning inherent to the calculation methods.
+#' @description The function calculates event and pointer years on a \code{data.frame} with tree-ring series using the relative growth change method, described as abrupt growth change method in Schweingruber et al. (1990). This method relates tree growth in year \code{\var{i}} to the average growth of \code{\var{n}} preceding years. Thresholds for event- and pointer-year calculations can be adjusted.
 #' 
 #' @usage pointer.rgc(data, nb.yrs = 4, rgc.thresh.pos = 60, rgc.thresh.neg = 40, 
 #'             series.thresh = 75)
@@ -18,8 +11,14 @@
 #' @param rgc.thresh.pos a \code{numeric} specifying the threshold above which a relative growth change (in percentage) for a specific tree and year is considered a positive event year. Defaults to 60.
 #' @param rgc.thresh.neg a \code{numeric} specifying the threshold below which a relative growth change (in percentage) for a specific tree and year is considered a negative event year. Defaults to 40.
 #' @param series.thresh a \code{numeric} specifying the minimum percentage of trees that should display a positive (or negative) event year for that year to be considered as positive (or negative) pointer year. Defaults to 75.
-#' @return 
 #' 
+#' @details The function calculates the ratio of tree growth in year \code{\var{i}} and the average growth of \code{\var{n}} preceding years for individual trees. Resulting relative growth changes are used to identify event years for trees, and these event years to define pointer years for the site.
+#' 
+#' Following Schweingruber et al. (1990), \code{\var{nb.yrs}}, \code{\var{rgc.thresh.pos}}, \code{\var{rgc.thresh.neg}} and \code{\var{series.thresh}} are set to 4, 60, 40 and 75 respectively, meaning that a positive or negative pointer year will be defined when at least 75\% of the tree-ring series display an event year with a growth increase or decrease of at least 60\% or 40\%, respectively, relative to the average growth in the 4 preceding years.
+#'
+#' Note that the resulting time series are truncated by \code{\var{nb.yrs}} at the beginning inherent to the calculation methods.
+#'
+#' @return 
 #' The function returns a \code{list} containing the following components:
 #' \item{rgc}{a \code{matrix} with relative growth changes for individual tree-ring series}
 #' \item{EYvalues}{a \code{matrix} indicating positive (1), negative (-1) and non-event years (0) for individual tree-ring series}
@@ -45,48 +44,50 @@
 #' py$out
 #' 
 #' @import stats
-#' @export
+#' 
+#' @export pointer.rgc
 #' 
 pointer.rgc <- function(data, nb.yrs = 4, rgc.thresh.pos = 60, rgc.thresh.neg = 40, series.thresh = 75)
 {
   stopifnot(is.numeric(nb.yrs), length(nb.yrs) == 1, is.finite(nb.yrs))
-  if (nb.yrs < 1) {
+  if(nb.yrs < 1) {
     stop("'nb.yrs' must be > 0")
   }
   stopifnot(is.numeric(rgc.thresh.pos), is.numeric(rgc.thresh.neg),
             length(rgc.thresh.pos) == 1, length(rgc.thresh.neg) == 1, 
             is.finite(rgc.thresh.pos), is.finite(rgc.thresh.neg))
-  if (rgc.thresh.pos < 0 | rgc.thresh.neg < 0) {
+  if(rgc.thresh.pos < 0 | rgc.thresh.neg < 0) {
     stop("'rgc.thresh.pos' and (or) 'rgc.thresh.neg' must be > 0")
   }
-  if (rgc.thresh.pos > 100 | rgc.thresh.neg > 100) {
+  if(rgc.thresh.pos > 100 | rgc.thresh.neg > 100) {
     warning("'rgc.thresh.pos' and (or) 'rgc.thresh.neg' > 100 is unusual")
   }
   stopifnot(is.numeric(series.thresh), length(series.thresh) == 1, 
             is.finite(series.thresh))
-  if (series.thresh < 0 || series.thresh > 100) {
+  if(series.thresh < 0 || series.thresh > 100) {
     stop("'series.thresh' must range from 0 to 100")
   }
   data2 <- as.matrix(data)
-  if (!is.matrix(data2)) {
+  if(!is.matrix(data2)) {
     stop("'data' must be coercible to a matrix")
   }
   if(ncol(data2) == 1) {
     stop("'data' must contain more than one series")
   }
   rnames <- rownames(data2)
-  if (is.null(rnames)) {
+  if(is.null(rnames)) {
     stop("'data' must have explicit row names")
   }
   yrs <- as.numeric(rnames)
   nyrs <- length(yrs)
-  if (nyrs < nb.yrs + 1) {
+  if(nyrs < nb.yrs + 1) {
     stop("'data' must be longer than nb.yrs + 1")
   }
   
-  if (nb.yrs == 1) {
+  if(nb.yrs == 1) {
     rgc <- data2[-1, , drop = FALSE] / data2[-nyrs, , drop = FALSE]
-  } else{
+  }
+  else {
     avg.pre <- matrix(nrow = nrow(data2) - nb.yrs, ncol = ncol(data2))
     for(i in (nb.yrs+1):nyrs) {
       avg.pre[i - nb.yrs,] <- colMeans(data2[(i - nb.yrs):(i - 1),])

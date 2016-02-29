@@ -1,11 +1,6 @@
 #' Plot mean Cropper values and pointer years
 #'
-#' 
-#' The function creates a bar plot of mean Cropper values from a \code{list} of the type as produced by \code{\link{pointer.norm}} and highlights years identified as pointer years.
-#' 
-#'
-#' The function makes a plot showing mean Cropper values; pointer years are indicated with dark-gray bars. If event years were defined using \code{method.thresh "Neuwirth"} (\code{\link{pointer.norm}}), different tones of gray indicate weak, strong and extreme pointer years, based on the most common event year class. Error bars can be set.
-#' 
+#' @description The function creates a bar plot of mean Cropper values from a \code{list} of the type as produced by \code{\link{pointer.norm}} and highlights years identified as pointer years.
 #' 
 #' @usage norm.plot(list.name, start.yr = NULL, end.yr = NULL, 
 #'           sd.disp = FALSE, x.tick.major = 10, x.tick.minor = 5)
@@ -16,8 +11,10 @@
 #' @param sd.disp a \code{logical} specifying whether error bars (stdev) should be displayed. Defaults to FALSE.
 #' @param x.tick.major an \code{integer} controlling the major x-axis tick labels. Defaults to 10 years.
 #' @param x.tick.minor an \code{integer} controlling the minor x-axis ticks. Defaults to 5 years.
-#' @return 
 #' 
+#' @details The function makes a plot showing mean Cropper values; pointer years are indicated with dark-gray bars. If event years were defined using \code{method.thresh "Neuwirth"} (\code{\link{pointer.norm}}), different tones of gray indicate weak, strong and extreme pointer years, based on the most common event year class. Error bars can be set.
+#'
+#' @return 
 #' Bar plot.
 #'
 #' @author Marieke van der Maaten-Theunissen and Ernst van der Maaten.
@@ -37,32 +34,33 @@
 #'           sd.disp = FALSE, x.tick.major = 10, x.tick.minor = 5)
 #'           
 #' @import ggplot2
-#' @import plyr
-#' @export
+#' @importFrom plyr round_any
+#' 
+#' @export norm.plot
 #' 
 norm.plot <- function(list.name, start.yr = NULL, end.yr = NULL,
                       sd.disp = FALSE, x.tick.major = 10, x.tick.minor = 5)
 {
   stopifnot(is.list(list.name))
-  if (class(list.name)[1] != "pointer.norm") {
+  if(class(list.name)[1] != "pointer.norm") {
     stop("'list.name' is no list output of function pointer.norm")
   }
-  if (is.data.frame(list.name$out) == FALSE) {
+  if(is.data.frame(list.name$out) == FALSE) {
     stop("'list.name' is no list output of function pointer.norm")
   }
-  if ("Cvalues_mean" %in% colnames(list.name$out) == FALSE) {
+  if("Cvalues_mean" %in% colnames(list.name$out) == FALSE) {
     stop("'list.name' is no list output of function pointer.norm")
   }
   if(nrow(list.name$out) < 2){
     stop("'list.name'$out contains < 2 years and is not displayed")
   }
-  if (!is.null(start.yr) && start.yr < min(list.name$out[, "year"])) {
+  if(!is.null(start.yr) && start.yr < min(list.name$out[, "year"])) {
     stop("'start.yr' is out of bounds. By default (start.yr = NULL) the first year is displayed")
   }
-  if (!is.null(end.yr) && end.yr > max(list.name$out[, "year"])) {
+  if(!is.null(end.yr) && end.yr > max(list.name$out[, "year"])) {
     stop("'end.yr' is out of bounds. By default (end.yr = NULL) the last year is displayed")
   }
-  if (x.tick.minor > x.tick.major) {
+  if(x.tick.minor > x.tick.major) {
     stop("'x.tick.minor' should be smaller then 'x.tick.major'")
   }
   
@@ -77,11 +75,11 @@ norm.plot <- function(list.name, start.yr = NULL, end.yr = NULL,
   year <- nature <- Cvalues_mean <- Cvalues_sd <- int.class <- NULL
   limits <- aes(ymax = Cvalues_mean + Cvalues_sd, ymin = Cvalues_mean - Cvalues_sd)
   
-  if(colnames(data3)[3] == "perc.pos"){
+  if(colnames(data3)[3] == "perc.pos") {
     nat.levels <- c(-1, 0, 1)
     fill.levels <- c("#636363", "#f0f0f0", "#636363")
     
-    if(sd.disp){
+    if(sd.disp) {
       pl <- ggplot(data3, aes(x = year, y = Cvalues_mean, fill = factor(nature))) 
       pl + geom_bar(stat = "identity", position = "identity", colour = "black") +
         scale_fill_manual(limits = nat.levels, values = fill.levels) +
@@ -91,7 +89,8 @@ norm.plot <- function(list.name, start.yr = NULL, end.yr = NULL,
                            limits = c(start.yr3-1, end.yr3+1)) +
         ylab("mean Cropper value") + theme_bw() + 
         geom_errorbar(limits, width=0.25, colour = "gray60")
-    } else{
+    }
+    else {
       pl <- ggplot(data3, aes(x = year, y = Cvalues_mean, fill = factor(nature))) 
       pl + geom_bar(stat = "identity", position = "identity", colour = "black") +
         scale_fill_manual(limits = nat.levels, values = fill.levels) +
@@ -101,7 +100,8 @@ norm.plot <- function(list.name, start.yr = NULL, end.yr = NULL,
                            limits = c(start.yr3-1, end.yr3+1)) +
         ylab("mean Cropper value") + theme_bw()
     }
-  }else{
+  }
+  else {
     data3[,12] <- ifelse(data2[, "nature"] == (-1), 
                          max.col(data2[,c(1, 2, 5, 4, 3, 6:11)][, 6:8], ties.method = "first"), 
                          ifelse(data2[, "nature"] == 1,
@@ -112,7 +112,7 @@ norm.plot <- function(list.name, start.yr = NULL, end.yr = NULL,
     int.levels <- c(-3, -2, -1, 0, 1, 2, 3)
     fill.levels <- c("black", "#636363","#bdbdbd", "#f0f0f0", "#bdbdbd", "#636363", "black")
     
-    if(sd.disp){
+    if(sd.disp) {
       pl <- ggplot(data3, aes(x = year, y = Cvalues_mean, fill = factor(int.class))) 
       pl + geom_bar(stat = "identity", position = "identity", colour = "black") +
         scale_fill_manual(limits = int.levels, values = fill.levels) +
@@ -122,7 +122,8 @@ norm.plot <- function(list.name, start.yr = NULL, end.yr = NULL,
                            limits = c(start.yr3-1, end.yr3+1)) +
         ylab("mean Cropper value") + theme_bw() + 
         geom_errorbar(limits, width=0.25, colour = "gray60")
-    } else{
+    }
+    else {
       pl <- ggplot(data3, aes(x = year, y = Cvalues_mean, fill = factor(int.class))) 
       pl + geom_bar(stat = "identity", position = "identity", colour = "black") +
         scale_fill_manual(limits = int.levels, values = fill.levels) +

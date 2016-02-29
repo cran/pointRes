@@ -1,13 +1,8 @@
 #' Calculate pointer years using the normalization in a moving window method
 #'
-#'
 #' @description The function calculates event and pointer years on a \code{data.frame} with tree-ring series using the normalization in a moving window method introduced by Cropper (1979; cf. Schweingruber et al. 1990). This method z-transforms tree growth in year \code{\var{i}} within a symmetric moving window of \code{\var{n}} years, thereby providing the number of standard deviations that tree growth deviates in individual years (Cropper values, C) from the window average. To identify event years, one absolute threshold on the number of standard deviations can be set (cf. Cropper 1979), or, alternatively, three intensity classes (cf. Neuwirth et al. 2007). Threshold values for defining event and pointer years can be adjusted.
 #' 
 #' Prior to the calculation of event and pointer years with \code{pointer.norm}, a 13-year weighted low-pass filter, as described by Fritts (1976), may be applied on the tree-ring series using \code{\link{lowpass13}}. According to Cropper (1979), such a filter improves the detection of event and pointer years for complacent series, whereas for sensitive series filtering has little effect.
-#'
-#' @details The function z-transforms tree growth in year \code{\var{i}} within a symmetric moving window of \code{\var{n}} years. For \code{method.thresh} \code{"Cropper"}, event years are defined as those years having absolute Cropper values above a specified threshold (defaults to |C| > 0.75). For \code{method.thresh} \code{"Neuwirth"}, three classes of distinct growth deviations can be defined, being 'weak', 'strong' and 'extreme' (defaults to |C| > 1, |C| > 1.28, and |C| > 1.645). The window size can be adjusted, as well as the minimum percentage of trees that should display a positive (or negative) event year for that year to be considered as positive (or negative) pointer year.
-#'
-#' Note that the resulting time series are truncated by \code{\var{(window-1)/2}} at both ends inherent to the calculation methods. 
 #'
 #' @usage pointer.norm(data, window = 5, method.thresh = c("Cropper", "Neuwirth"),
 #'              C.thresh = 0.75, N.thresh1 = 1, N.thresh2 = 1.28, 
@@ -21,8 +16,12 @@
 #' @param N.thresh2 a \code{numeric} specifying the threshold for identification of strong event years using method \code{"Neuwirth"}. Defaults to 1.28.
 #' @param N.thresh3 a \code{numeric} specifying the threshold for identification of extreme event years using method \code{"Neuwirth"}. Defaults to 1.645.
 #' @param series.thresh a \code{numeric} specifying the minimum percentage of trees that should display a positive (or negative) event year for that year to be considered as positive (or negative) pointer year. Defaults to 75.
-#' @return
+#' 
+#' @details The function z-transforms tree growth in year \code{\var{i}} within a symmetric moving window of \code{\var{n}} years. For \code{method.thresh} \code{"Cropper"}, event years are defined as those years having absolute Cropper values above a specified threshold (defaults to |C| > 0.75). For \code{method.thresh} \code{"Neuwirth"}, three classes of distinct growth deviations can be defined, being 'weak', 'strong' and 'extreme' (defaults to |C| > 1, |C| > 1.28, and |C| > 1.645). The window size can be adjusted, as well as the minimum percentage of trees that should display a positive (or negative) event year for that year to be considered as positive (or negative) pointer year.
 #'
+#' Note that the resulting time series are truncated by \code{\var{(window-1)/2}} at both ends inherent to the calculation methods. 
+#'
+#' @return
 #' The function returns a \code{list} containing the following components:
 #'
 #' \itemize{\item{for \code{method.thresh} \code{"Cropper"}:}}
@@ -76,13 +75,14 @@
 #' py_n$out
 #' 
 #' @import stats
-#' @export
+#' 
+#' @export pointer.norm
 #' 
 pointer.norm <- function(data, window = 5, method.thresh = c("Cropper", "Neuwirth"), C.thresh = 0.75,
                          N.thresh1 = 1, N.thresh2 = 1.28, N.thresh3 = 1.645, series.thresh = 75) 
 {
   stopifnot(is.numeric(window), length(window) == 1, is.finite(window))
-  if (window < 3) {
+  if(window < 3) {
     stop("'window' must be > 3")
   }
   is.odd <- function(x) x %% 2 != 0
@@ -91,36 +91,36 @@ pointer.norm <- function(data, window = 5, method.thresh = c("Cropper", "Neuwirt
   }
   stopifnot(is.numeric(series.thresh), length(series.thresh) == 
               1, is.finite(series.thresh))
-  if (series.thresh < 0 || series.thresh > 100) {
+  if(series.thresh < 0 || series.thresh > 100) {
     stop("'series.thresh' must range from 0 to 100")
   }
   data2 <- as.matrix(data)
-  if (!is.matrix(data2)) {
+  if(!is.matrix(data2)) {
     stop("'data' must be coercible to a matrix")
   }
-  if(ncol(data2) == 1){
+  if(ncol(data2) == 1) {
     stop("'data' must contain more than one series")
   }
   rnames <- rownames(data2)
-  if (is.null(rnames)) {
+  if(is.null(rnames)) {
     stop("'data' must have explicit row names")
   }
   yrs <- as.numeric(rnames)
   nyrs <- length(yrs)
-  if (nyrs < window) {
+  if(nyrs < window) {
     stop("'data' must have more rows than the window length")
   }
   stopifnot(is.numeric(C.thresh), length(C.thresh) == 1, is.finite(C.thresh))
-  if (method.thresh == "Cropper" && C.thresh <= 0) {
+  if(method.thresh == "Cropper" && C.thresh <= 0) {
     stop("'C.thresh' must be larger than 0")
   }
   stopifnot(is.numeric(N.thresh1), length(N.thresh1) == 1, is.finite(N.thresh1))
   stopifnot(is.numeric(N.thresh2), length(N.thresh2) == 1, is.finite(N.thresh2))
   stopifnot(is.numeric(N.thresh3), length(N.thresh3) == 1, is.finite(N.thresh3))
-  if (method.thresh == "Neuwirth" && N.thresh1 <= 0) {
+  if(method.thresh == "Neuwirth" && N.thresh1 <= 0) {
     stop("'N.thresh1' must be larger than 0")
   }
-  if (method.thresh == "Neuwirth" && (N.thresh2 <= N.thresh1 || N.thresh3 <= N.thresh2)){
+  if(method.thresh == "Neuwirth" && (N.thresh2 <= N.thresh1 || N.thresh3 <= N.thresh2)) {
     stop("the 'N.thresh' thresholds must have increasing values ")
   }
   
@@ -138,12 +138,10 @@ pointer.norm <- function(data, window = 5, method.thresh = c("Cropper", "Neuwirt
   rownames(Cvalues) <- yrs[start : (length(yrs) - tail)]
   colnames(Cvalues) <- colnames(data2)
   
-  #Cvalues<-scale(Cvalues)
-  
   type.cropper <- method.thresh2 == "Cropper"
   type.neuwirth <- method.thresh2 == "Neuwirth"
   
-  if (type.cropper) {
+  if(type.cropper) {
     EYvalues <- as.matrix(Cvalues)
     EYvalues[ EYvalues <= (-C.thresh)] <- -1
     EYvalues[ EYvalues >= C.thresh] <- 1
@@ -171,7 +169,7 @@ pointer.norm <- function(data, window = 5, method.thresh = c("Cropper", "Neuwirt
     class(output) <- c("pointer.norm", "Cropper")
   }
   
-  if (type.neuwirth) {
+  if(type.neuwirth) {
     EYvalues <- as.matrix(Cvalues)
     EYvalues[ EYvalues <= (-N.thresh3) ] <- -3
     EYvalues[ EYvalues <= (-N.thresh2) & EYvalues > (-N.thresh3)] <- -2
