@@ -4,17 +4,20 @@
 \alias{pointer.plot}
 \title{Plot pointer years for multiple sites}
 \usage{
-pointer.plot(list.sites, start.yr = NULL, end.yr = NULL, labels = NULL,
+pointer.plot(list.sites, sign = c("both", "pos", "neg"),
+             start.yr = NULL, end.yr = NULL, labels = NULL,
              x.tick.major = 10, x.tick.minor = 5)
 }
 \arguments{
 \item{list.sites}{a \code{list} with \code{lists} as produced by either \code{\link{pointer.norm}} or \code{\link{pointer.rgc}} for individual sites (created using list(site1, site2,..)).}
 
+\item{sign}{a \code{character} string specifying whether both positive and negative (\code{"both"}), or only positive (\code{"pos"}) or negative (\code{"neg"}) pointer years should be displayed. Defaults to \code{"both"}.}
+
 \item{start.yr}{an \code{integer} specifying the first year to be plotted. Defaults to the first year with data if \code{\var{start.yr}} is \code{NULL}.}
 
 \item{end.yr}{an \code{integer} specifying the last year to be plotted. Defaults to the last year with data if \code{\var{end.yr}} is \code{NULL}.}
 
-\item{labels}{a \code{character vector} with labels for the sites. Defaults to 'site 1, 2, .., \code{\var{i}}'.}
+\item{labels}{a \code{character} vector with labels for the sites. Defaults to 'site 1, 2, .., \code{\var{i}}'.}
 
 \item{x.tick.major}{an \code{integer} controlling the major x-axis tick labels. Defaults to 10 years.}
 
@@ -24,34 +27,26 @@ pointer.plot(list.sites, start.yr = NULL, end.yr = NULL, labels = NULL,
 Dot plot.
 }
 \description{
-The function creates a dot plot showing positive and negative pointer years from \code{lists} of the type as produced by either \code{\link{pointer.norm}} or \code{\link{pointer.rgc}}.
+The function creates a dot plot showing positive and (or) negative pointer years from \code{lists} of the type as produced by either \code{\link{pointer.norm}} or \code{\link{pointer.rgc}}.
 }
 \details{
 The function makes a dot plot showing pointer years for multiple sites. Positive and negative pointer years are indicated with different symbols. If event years were defined using \code{method.thresh "Neuwirth"} (\code{\link{pointer.norm}}), different tones of gray indicate weak, strong and extreme pointer years, based on the most common event year class.
-
-Non-pointer years are indicated with minus-signs, allowing the assessment of chronology length for individual sites.
 }
 \examples{
-## Plot pointer years for multiple sites as generated using pointer.rgc
+## Plot negative pointer years for multiple sites from pointer.rgc output
 data(s033)
-site1 <- pointer.rgc(s033, nb.yrs = 4, rgc.thresh.pos = 60, rgc.thresh.neg = 40, 
-                     series.thresh = 75)
-site2 <- pointer.rgc(s033, nb.yrs = 4, rgc.thresh.pos = 60, rgc.thresh.neg = 40, 
-                     series.thresh = 75)
+site1 <- pointer.rgc(s033, nb.yrs = 4)
+site2 <- pointer.rgc(s033, nb.yrs = 6)
 sites <- list(site1, site2)
-pointer.plot(sites, start.yr = 1950, end.yr = NULL, labels = NULL,
-             x.tick.major = 10, x.tick.minor = 5) 
+pointer.plot(sites, sign = "neg", start.yr = 1950, end.yr = NULL) 
 
-## Plot pointer years for multiple sites as generated using pointer.norm (method "Neuwirth")
+## Plot pointer years for multiple sites from pointer.norm output (method "Neuwirth")
 data(s033)
-site1 <- pointer.norm(s033, window = 5, method.thresh = "Neuwirth",
-                      series.thresh = 75)
-site2 <- pointer.norm(s033, window = 5, method.thresh = "Neuwirth",
-                      series.thresh = 75)
+site1 <- pointer.norm(s033, window = 5, method.thresh = "Neuwirth")
+site2 <- pointer.norm(s033, window = 11, method.thresh = "Neuwirth")
 sites <- list(site1, site2)
-site.names <- c("schneetal", "snowvalley")
-pointer.plot(sites, start.yr = 1950, end.yr = NULL, labels = site.names,
-             x.tick.major = 10, x.tick.minor = 5) 
+site.names <- c("schneetal5", "schneetal11")
+pointer.plot(sites, start.yr = 1950, end.yr = NULL, labels = site.names) 
            
 }
 \author{

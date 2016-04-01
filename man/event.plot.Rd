@@ -4,11 +4,14 @@
 \alias{event.plot}
 \title{Plot event years for individual trees}
 \usage{
-event.plot(list.name, start.yr = NULL, end.yr = NULL,
+event.plot(list.name, sign = c("both", "pos", "neg"),
+           start.yr = NULL, end.yr = NULL,
            x.tick.major = 10, x.tick.minor = 5)
 }
 \arguments{
 \item{list.name}{a \code{list} as produced by \code{\link{pointer.norm}} or \code{\link{pointer.rgc}}}
+
+\item{sign}{a \code{character} string specifying whether both positive and negative (\code{"both"}), or only positive (\code{"pos"}) or negative (\code{"neg"}) event years should be displayed. Defaults to \code{"both"}.}
 
 \item{start.yr}{an \code{integer} specifying the first year to be plotted. Defaults to the first year with data if \code{\var{start.yr}} is \code{NULL}.}
 
@@ -22,27 +25,21 @@ event.plot(list.name, start.yr = NULL, end.yr = NULL,
 Dot plot.
 }
 \description{
-The function creates a dot plot showing positive and negative event year values from a \code{list} of the type as produced by \code{\link{pointer.norm}} or \code{\link{pointer.rgc}}.
+The function creates a dot plot showing positive and (or) negative event years from a \code{list} of the type as produced by \code{\link{pointer.norm}} or \code{\link{pointer.rgc}}.
 }
 \details{
 The function makes a dot plot showing event years for individual trees. Positive and negative event years are indicated with different symbols. If event years were defined using \code{method.thresh "Neuwirth"} (\code{\link{pointer.norm}}), different tones of gray indicate weak, strong and extreme event years.
-
-Non-event years are indicated with minus-signs, allowing the assessment of individual series length.
 }
 \examples{
-## Plot event years for individual trees as generated using pointer.rgc
+## Plot event years from pointer.rgc output
 data(s033)
-py <- pointer.rgc(s033, nb.yrs = 4, rgc.thresh.pos = 60, rgc.thresh.neg = 40, 
-                  series.thresh = 75)
-event.plot(py, start.yr = 1950, end.yr = NULL,
-           x.tick.major = 10, x.tick.minor = 5) 
+py <- pointer.rgc(s033)
+event.plot(py, start.yr = 1950, end.yr = NULL) 
 
-## Plot event years for individual trees as generated using pointer.norm (method "Neuwirth")
+## Plot negative event years from pointer.norm output (method "Neuwirth")
 data(s033)
-py_n <- pointer.norm(s033, window = 5, method.thresh = "Neuwirth",
-                     series.thresh = 75)
-event.plot(py_n, start.yr = 1950, end.yr = NULL,
-           x.tick.major = 10, x.tick.minor = 5) 
+py_n <- pointer.norm(s033, window = 5, method.thresh = "Neuwirth")
+event.plot(py_n, sign = "neg", start.yr = 1950, end.yr = NULL) 
            
 }
 \author{

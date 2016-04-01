@@ -113,7 +113,7 @@ pointer.rgc <- function(data, nb.yrs = 4, rgc.thresh.pos = 60, rgc.thresh.neg = 
   dev_sd <- apply(rgc, 1, function(x) sd(x, na.rm = TRUE)) * 100
   
   out <- data.frame(year, nb.series, perc.pos, perc.neg, nature, dev_mean, dev_sd, row.names = NULL)
-  out[,c(3,4,6,7)] <- round(out[,c(3,4,6,7)], 2)
+  out[,c(3, 4, 6, 7)] <- round(out[,c(3, 4, 6, 7)], 2)
   
   rgc <- round(rgc, 2)
   

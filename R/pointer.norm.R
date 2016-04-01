@@ -143,9 +143,9 @@ pointer.norm <- function(data, window = 5, method.thresh = c("Cropper", "Neuwirt
   
   if(type.cropper) {
     EYvalues <- as.matrix(Cvalues)
+    EYvalues[ EYvalues < C.thresh  & EYvalues > (-C.thresh)] <- 0
     EYvalues[ EYvalues <= (-C.thresh)] <- -1
     EYvalues[ EYvalues >= C.thresh] <- 1
-    EYvalues[ EYvalues < C.thresh  & EYvalues > (-C.thresh)] <- 0
     
             year <- yrs[start : (length(yrs) - tail)]
        nb.series <- rowSums(!is.na(Cvalues))
