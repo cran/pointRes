@@ -12,7 +12,7 @@ data(s033)
 This dataset presents tree-ring series for 20 European beech (\emph{Fagus sylvatica} L.) trees from the forest reserve Schneetal, Bavaria, Germany. Series are averages of two cores.
 }
 \references{
-Principe, A.S., van der Maaten, E., van der Maaten-Theunissen, M., Struwe, T., Wilmking, M. & Kreyling, J. (in prep.) Low resistance but high resilience in growth of a major deciduous forest tree (\emph{Fagus sylvatica} L.) in response to late spring frost in southern Germany.
+Principe, A.S., van der Maaten, E., van der Maaten-Theunissen, M., Struwe, T., Wilmking, M. & Kreyling, J. (2017) Low resistance but high resilience in growth of a major deciduous forest tree (\emph{Fagus sylvatica} L.) in response to late spring frost in southern Germany. \emph{Trees}. doi: 10.1007/s00468-016-1505-3.
 }
 \keyword{datasets}
 

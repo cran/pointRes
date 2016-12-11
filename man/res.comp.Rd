@@ -4,12 +4,14 @@
 \alias{res.comp}
 \title{Calculate resilience components: resistance, recovery, resilience and relative resilience}
 \usage{
-res.comp(data, nb.yrs = 4, res.thresh.neg = 40, series.thresh = 75)
+res.comp(data, nb.yrs = 4, post = NULL, res.thresh.neg = 40, series.thresh = 75)
 }
 \arguments{
 \item{data}{a \code{data.frame} with tree-ring series as columns and years as rows (e.g., output of \code{read.rwl}, \code{bai.in} or \code{bai.out} of package dplR)}
 
-\item{nb.yrs}{an \code{integer} specifying the number of years for pre- and post-disturbance periods to be considered in calculating resilience components. Defaults to 4.}
+\item{nb.yrs}{an \code{integer} specifying the number of years for pre- and (or) post-disturbance periods to be considered in calculating resilience components. Defaults to 4.}
+
+\item{post}{an \code{integer} specifying the number of years for post-disturbance periods. Defaults to \code{\var{nb.yrs}}. Optional argument in case pre- and post-period lengths should differ.}
 
 \item{res.thresh.neg}{a \code{numeric} specifying the threshold below which the resistance, expressed as a percentual change (i.e. relative growth reduction), is considered a negative event year for individual trees and years. Defaults to 40.}
 
@@ -46,12 +48,12 @@ The function calculates the resilience components resistance, recovery, resilien
 
 If \code{\var{nb.yrs}}, \code{\var{res.thresh.neg}} and \code{\var{series.thresh}} are set to 4, 40 and 75 respectively, a negative pointer year will be defined when at least 75\% of the tree-ring series display an event year with resistance values indicating a growth decrease of at least 40\%, relative to the average growth in the 4 preceding years. The output provides the resilience components for all possible years, as well as for the selected pointer years separately.
 
-Note that the resulting time series are truncated by \code{\var{nb.yrs}} at both ends inherent to the calculation methods.
+Note that the resulting time series are truncated at both ends by the number of years specified in \code{\var{nb.yrs}} (and \code{\var{post}}), inherent to the calculation methods.
 }
 \examples{
 ## Calculate resilience components on tree-ring series
 data(s033)
-res <- res.comp(s033, nb.yrs = 4, res.thresh.neg = 40, series.thresh = 75)
+res <- res.comp(s033, nb.yrs = 4, post = NULL, res.thresh.neg = 40, series.thresh = 75)
 res$out
 res$out.select
 

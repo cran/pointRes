@@ -6,6 +6,6 @@
 #' @docType data
 #' @usage data(s033)
 #' @format A \code{data.frame} containing 20 tree-ring series in columns and 136 years in rows.
-#' @references Principe, A.S., van der Maaten, E., van der Maaten-Theunissen, M., Struwe, T., Wilmking, M. & Kreyling, J. (in prep.) Low resistance but high resilience in growth of a major deciduous forest tree (\emph{Fagus sylvatica} L.) in response to late spring frost in southern Germany.
+#' @references Principe, A.S., van der Maaten, E., van der Maaten-Theunissen, M., Struwe, T., Wilmking, M. & Kreyling, J. (2017) Low resistance but high resilience in growth of a major deciduous forest tree (\emph{Fagus sylvatica} L.) in response to late spring frost in southern Germany. \emph{Trees}. doi: 10.1007/s00468-016-1505-3. 
 #' @keywords datasets
 NULL

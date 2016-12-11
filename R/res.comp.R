@@ -2,10 +2,11 @@
 #'
 #' @description The function calculates resilience components on a \code{data.frame} of tree-ring series after Lloret et al. (2011), useful to analyze growth of individual trees prior, during and after extreme events / disturbances. The component 'resistance' is conceptually identical to 'abrupt growth changes' as described in Schweingruber et al. (1990). To identify negative event and pointer years, thresholds can be set as for the function \code{\link{pointer.rgc}}. 'Recovery' is the ability of tree growth to recover after disturbance, whereas 'resilience' reflects the ability of trees to reach pre-disturbance growth levels. Weighting of the resilience by the experienced growth reduction results in 'relative resilience'.
 #'
-#' @usage res.comp(data, nb.yrs = 4, res.thresh.neg = 40, series.thresh = 75)
+#' @usage res.comp(data, nb.yrs = 4, post = NULL, res.thresh.neg = 40, series.thresh = 75)
 #'
 #' @param data a \code{data.frame} with tree-ring series as columns and years as rows (e.g., output of \code{read.rwl}, \code{bai.in} or \code{bai.out} of package dplR)
-#' @param nb.yrs an \code{integer} specifying the number of years for pre- and post-disturbance periods to be considered in calculating resilience components. Defaults to 4.
+#' @param nb.yrs an \code{integer} specifying the number of years for pre- and (or) post-disturbance periods to be considered in calculating resilience components. Defaults to 4.
+#' @param post an \code{integer} specifying the number of years for post-disturbance periods. Defaults to \code{\var{nb.yrs}}. Optional argument in case pre- and post-period lengths should differ.
 #' @param res.thresh.neg a \code{numeric} specifying the threshold below which the resistance, expressed as a percentual change (i.e. relative growth reduction), is considered a negative event year for individual trees and years. Defaults to 40.
 #' @param series.thresh a \code{numeric} specifying the minimum percentage of trees that should display a negative event year for that year to be considered as negative pointer year. Defaults to 75.
 #' 
@@ -13,7 +14,7 @@
 #'
 #' If \code{\var{nb.yrs}}, \code{\var{res.thresh.neg}} and \code{\var{series.thresh}} are set to 4, 40 and 75 respectively, a negative pointer year will be defined when at least 75\% of the tree-ring series display an event year with resistance values indicating a growth decrease of at least 40\%, relative to the average growth in the 4 preceding years. The output provides the resilience components for all possible years, as well as for the selected pointer years separately.
 #' 
-#' Note that the resulting time series are truncated by \code{\var{nb.yrs}} at both ends inherent to the calculation methods. 
+#' Note that the resulting time series are truncated at both ends by the number of years specified in \code{\var{nb.yrs}} (and \code{\var{post}}), inherent to the calculation methods. 
 #'
 #' @return 
 #' #' The function returns a \code{list} containing the following components:
@@ -45,7 +46,7 @@
 #'
 #' @examples ## Calculate resilience components on tree-ring series
 #' data(s033)
-#' res <- res.comp(s033, nb.yrs = 4, res.thresh.neg = 40, series.thresh = 75)
+#' res <- res.comp(s033, nb.yrs = 4, post = NULL, res.thresh.neg = 40, series.thresh = 75)
 #' res$out
 #' res$out.select
 #' 
@@ -53,11 +54,18 @@
 #' 
 #' @export res.comp
 #' 
-res.comp <- function(data, nb.yrs = 4, res.thresh.neg = 40, series.thresh = 75)
+res.comp <- function(data, nb.yrs = 4, post = NULL, res.thresh.neg = 40, series.thresh = 75)
 {
   stopifnot(is.numeric(nb.yrs), length(nb.yrs) == 1, is.finite(nb.yrs))
   if(nb.yrs < 1) {
     stop("'nb.yrs' must be > 0")
+  }
+  if(is.null(post)) {
+    post <- nb.yrs
+  }
+  stopifnot(is.numeric(post), length(post) == 1, is.finite(post))
+  if(post < 1) {
+    stop("'post' must be NULL or > 0")
   }
   stopifnot(is.numeric(res.thresh.neg), length(res.thresh.neg) == 1, 
             is.finite(res.thresh.neg))
@@ -85,37 +93,51 @@ res.comp <- function(data, nb.yrs = 4, res.thresh.neg = 40, series.thresh = 75)
   }
   yrs <- as.numeric(rnames)
   nyrs <- length(yrs)
-  if (nyrs < 2 * nb.yrs + 1) {
-    stop("'data' must be longer than the full calculation window (2 * nb.yrs + 1)")
+  if (nyrs < nb.yrs + post + 1) {
+    stop("'data' must be longer than the full calculation window")
   }
   
   start <- nb.yrs + 1
   
-  avg.pre <- matrix(nrow = nrow(data2) - 2 * nb.yrs, ncol = ncol(data2))
-  for(i in start:(nyrs-nb.yrs)) {
-    avg.pre[i - nb.yrs,] <- colMeans(data2[(i - nb.yrs):(i - 1),])
+  avg.pre <- matrix(nrow = nrow(data2) - nb.yrs - post, ncol = ncol(data2))
+  if(nb.yrs == 1) {
+    for(i in start:(nyrs-post)) {
+      avg.pre[i - nb.yrs,] <- data2[(i - 1), ]
+    }
   }
-  rownames(avg.pre) <- yrs[start : (length(yrs) - nb.yrs)]
-  resist <- data2[start : (nrow(data2) - nb.yrs), , drop = FALSE] / avg.pre[, , drop = FALSE]
+  else {
+    for(i in start:(nyrs-post)) {
+      avg.pre[i - nb.yrs,] <- colMeans(data2[(i - nb.yrs):(i - 1),])
+    }
+  }
+  rownames(avg.pre) <- yrs[start : (length(yrs) - post)]
+  resist <- data2[start : (nrow(data2) - post), , drop = FALSE] / avg.pre[, , drop = FALSE]
   
   neg.thresh <- 1 - res.thresh.neg/100
   EYvalues <- ifelse(resist <= neg.thresh, -1, 0) 
   
-  avg.post <- matrix(nrow = nrow(data2) - 2*nb.yrs, ncol = ncol(data2))
-  for(i in start:(nyrs - nb.yrs)) {
-    avg.post[i - nb.yrs,] <- colMeans(data2[(i + 1):(i + nb.yrs),])
+  avg.post <- matrix(nrow = nrow(data2) - nb.yrs - post, ncol = ncol(data2))
+  if(post == 1){
+    for(i in start:(nyrs-post)) {
+      avg.post[i - nb.yrs,] <- data2[(i + 1), ]
+    }
   }
-  rownames(avg.post) <- yrs[start : (length(yrs) - nb.yrs)]
-  recov <- avg.post[, , drop = FALSE] / data2[start : (nrow(data2) - nb.yrs), , drop = FALSE]
+  else {
+    for(i in start:(nyrs - post)) {
+      avg.post[i - nb.yrs,] <- colMeans(data2[(i + 1):(i + post),])
+    }
+  }
+  rownames(avg.post) <- yrs[start : (length(yrs) - post)]
+  recov <- avg.post[, , drop = FALSE] / data2[start : (nrow(data2) - post), , drop = FALSE]
   colnames(recov) <- colnames(data2)
   
   resil <- avg.post / avg.pre
   colnames(resil) <- colnames(data2)
   
-  rel.resil <- (avg.post - data2[start:(nyrs - nb.yrs), ]) / avg.pre
+  rel.resil <- (avg.post - data2[start:(nyrs - post), ]) / avg.pre #post
   colnames(rel.resil) <- colnames(data2)
   
-            year <- yrs[start : (length(yrs) - nb.yrs)]
+            year <- yrs[start : (length(yrs) - post)] #post
        nb.series <- rowSums(!is.na(resist))
         perc.neg <- rowSums(resist <= neg.thresh, na.rm = TRUE)/nb.series * 100
              nat <- pmax(0, perc.neg - (series.thresh - 1e-07))

@@ -25,7 +25,7 @@ event.plot(pyn, start.yr = 1950, end.yr = NULL, x.tick.major = 10, x.tick.minor 
 pointer.plot(list(pyn,pyn), sign = "neg", start.yr = 1950, end.yr = NULL)
 
 ## ------------------------------------------------------------------------
-res <- res.comp(s033, nb.yrs = 4, res.thresh.neg = 40, series.thresh = 75)
+res <- res.comp(s033, nb.yrs = 4, post = NULL, res.thresh.neg = 40, series.thresh = 75)
 
 ## ------------------------------------------------------------------------
 head(res$out.select)

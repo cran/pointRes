@@ -71,10 +71,10 @@ pointer.plot(list(pyn,pyn), sign = "neg", start.yr = 1950, end.yr = NULL)
 ```
 
 ## Components of tree resilience
-The function `res.comp` calculates the resilience components resistance, recovery, resilience and relative resilience. As the component *resistance* is conceptually identical to the relative growth change method applied for years with low growth (i.e. the ratio of tree growth during and before disturbance), thresholds for negative event and pointer years can be set as in `pointer.rgc`.
+The function `res.comp` calculates the resilience components resistance, recovery, resilience and relative resilience. As the component *resistance* is conceptually identical to the relative growth change method applied for years with low growth (i.e. the ratio of tree growth during and before disturbance), thresholds for negative event and pointer years can be set as in `pointer.rgc`. An optimal argument `post` allows to define a post-disturbance period of different length than the pre-disturbance period.
 
 ```{r}
-res <- res.comp(s033, nb.yrs = 4, res.thresh.neg = 40, series.thresh = 75)
+res <- res.comp(s033, nb.yrs = 4, post = NULL, res.thresh.neg = 40, series.thresh = 75)
 ```
 
 The output of `res.comp` is structured in a similar way as for `pointer.rgc`, however, inherent to the concept of resistance, only negative pointer years are indicated in the summarizing output. Further, matrices and basic statistics are provided for resistance, recovery, resilience and relative resilience. An additional list component (`out.select`) presents a subset of the output for years identified as negative pointer years.

@@ -28,3 +28,8 @@
 	* Version 1.1.2: small bug fix in function pointer.norm
 	* additional argument 'sign' in function event.plot and pointer.plot
 	* vignette on basic package functionality added
+
+2016-11-## Marieke van der Maaten-Theunissen <marieketheunissen@gmail.com>
+
+	* Version 1.1.3: additional argument 'post' in function res.comp
+	* Citation to data s033 added
