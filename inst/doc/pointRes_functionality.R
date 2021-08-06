@@ -1,39 +1,42 @@
-## ---- echo = FALSE, message = FALSE--------------------------------------
+## ---- echo = FALSE, message = FALSE-------------------------------------------
 library(pointRes)
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 library(pointRes)
 data(s033) # the result of s033 <- read.rwl('s033.rwl') - a function of the dplR package
 
-## ------------------------------------------------------------------------
-pyc <- pointer.norm(s033, window = 5, method.thresh = "Cropper", C.thresh = 0.75, series.thresh = 75)
-pyn <- pointer.norm(s033, window = 5, method.thresh = "Neuwirth", N.thresh1 = 1, N.thresh2 = 1.28, N.thresh3 = 1.645, series.thresh = 75)
+## -----------------------------------------------------------------------------
+detr_s033 <- detrend(s033, method = "Spline", nyrs = 30)
+pyc <- pointer.norm(detr_s033, period = NULL, window = 13, method.thresh = "Cropper", C.thresh = 0.75, series.thresh = 75, make.plot = FALSE)
+pyn <- pointer.norm(detr_s033, period = NULL, window = 13, method.thresh = "Neuwirth", N.thresh = c(1, 1.28, 1.645), series.thresh = 75, make.plot = FALSE)
 
-## ------------------------------------------------------------------------
-rgc <- pointer.rgc(s033, nb.yrs = 4, rgc.thresh.pos = 60, rgc.thresh.neg = 40, series.thresh = 75)
+## -----------------------------------------------------------------------------
+rgc <- pointer.rgc(s033, period = NULL, nb.yrs = 4, rgc.thresh.pos = 60, rgc.thresh.neg = 40, series.thresh = 75, make.plot = FALSE)
 
-## ------------------------------------------------------------------------
-head(pyc$out) # first five lines of the summarizing 'out' component of list pyc
+## -----------------------------------------------------------------------------
+detr_s033 <- detrend(s033, method = "Spline", nyrs = 30)
+pz <- pointer.zchron(detr_s033, period = NULL, bi.weight = TRUE, z.thresh = 1, t.Test = FALSE, make.plot = FALSE) 
 
-## ---- fig.width = 7, fig.height = 3.5, fig.retina = 3--------------------
-rgc.plot(rgc, start.yr = 1950, end.yr = NULL, sd.disp = FALSE, x.tick.major = 10, x.tick.minor = 5)
+## -----------------------------------------------------------------------------
+it <- interval.trend(s033, period = NULL, trend.thresh = 0, IT.thresh = 95, make.plot = FALSE) 
 
-## ---- fig.width = 7, fig.height = 5.3, fig.retina = 3--------------------
-event.plot(pyn, start.yr = 1950, end.yr = NULL, x.tick.major = 10, x.tick.minor = 5)
+## ---- fig.width = 7, fig.height = 3.5, fig.retina = 3-------------------------
+detr_s033 <- detrend(s033, method = "Spline", nyrs = 30)
+pyn <- pointer.norm(detr_s033, method = "Neuwirth", make.plot = TRUE)
 
-## ---- fig.width = 7, fig.height = 2, fig.retina = 3----------------------
-pointer.plot(list(pyn,pyn), sign = "neg", start.yr = 1950, end.yr = NULL)
+## ---- fig.width = 7, fig.height = 5.3, fig.retina = 3-------------------------
+event.plot(pyn, period = c(1950, 2007), x.tick.major = 10, x.tick.minor = 5)
 
-## ------------------------------------------------------------------------
-res <- res.comp(s033, nb.yrs = 4, post = NULL, res.thresh.neg = 40, series.thresh = 75)
+## ---- fig.width = 7, fig.height = 2, fig.retina = 3---------------------------
+pointer.plot(list(pyn,pyc,pz,it), sign = "neg", period = c(1950, 2007), labels = c("Neuwirth","Cropper","zChron","IT"))
 
-## ------------------------------------------------------------------------
-head(res$out.select)
+## -----------------------------------------------------------------------------
+res <- res.comp(s033, nb.yrs = c(4,4), max.yrs.rec = 10)
 
-## ---- fig.width = 6, fig.height = 5.3, fig.retina = 3--------------------
-res.plot(res, select.yr = NULL, multi.panel = TRUE)
+## ---- fig.width = 6, fig.height = 5.3, fig.retina = 3-------------------------
+res.plot(res, select.yr = c(1976, 1992, 2003), param = "resist")
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 citation()
 citation("pointRes")
 

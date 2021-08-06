@@ -5,17 +5,15 @@
 \title{Plot pointer years for multiple sites}
 \usage{
 pointer.plot(list.sites, sign = c("both", "pos", "neg"),
-             start.yr = NULL, end.yr = NULL, labels = NULL,
+             period = NULL, labels = NULL,
              x.tick.major = 10, x.tick.minor = 5)
 }
 \arguments{
-\item{list.sites}{a \code{list} with \code{lists} as produced by either \code{\link{pointer.norm}} or \code{\link{pointer.rgc}} for individual sites (created using list(site1, site2,..)).}
+\item{list.sites}{a \code{list} with \code{lists} as produced by \code{\link{pointer.norm}}, \code{\link{pointer.rgc}}, \code{\link{pointer.zchron}} or \code{\link{interval.trend}} for individual sites (created using list(site1, site2,..)).}
 
 \item{sign}{a \code{character} string specifying whether both positive and negative (\code{"both"}), or only positive (\code{"pos"}) or negative (\code{"neg"}) pointer years should be displayed. Defaults to \code{"both"}.}
 
-\item{start.yr}{an \code{integer} specifying the first year to be plotted. Defaults to the first year with data if \code{\var{start.yr}} is \code{NULL}.}
-
-\item{end.yr}{an \code{integer} specifying the last year to be plotted. Defaults to the last year with data if \code{\var{end.yr}} is \code{NULL}.}
+\item{period}{a \code{vector} specifying the start and end year to be plotted. Defaults to the full period covered by the output of the pointer year analyses.}
 
 \item{labels}{a \code{character} vector with labels for the sites. Defaults to 'site 1, 2, .., \code{\var{i}}'.}
 
@@ -27,29 +25,32 @@ pointer.plot(list.sites, sign = c("both", "pos", "neg"),
 Dot plot.
 }
 \description{
-The function creates a dot plot showing positive and (or) negative pointer years from \code{lists} of the type as produced by either \code{\link{pointer.norm}} or \code{\link{pointer.rgc}}.
+The function creates a dot plot showing positive and (or) negative pointer years from \code{lists} of the type as produced by \code{\link{pointer.norm}}, \code{\link{pointer.rgc}}, \code{\link{pointer.zchron}} and (or) \code{\link{interval.trend}}.
 }
 \details{
-The function makes a dot plot showing pointer years for multiple sites. Positive and negative pointer years are indicated with different symbols. If event years were defined using \code{method.thresh "Neuwirth"} (\code{\link{pointer.norm}}), different tones of gray indicate weak, strong and extreme pointer years, based on the most common event year class.
+The function makes a dot plot showing pointer years for multiple sites. Positive and negative pointer years are indicated with different symbols an (or) colors.
 }
 \examples{
-## Plot negative pointer years for multiple sites from pointer.rgc output
+## Plot negative pointer years for multiple sites (or different methods)
 data(s033)
-site1 <- pointer.rgc(s033, nb.yrs = 4)
-site2 <- pointer.rgc(s033, nb.yrs = 6)
-sites <- list(site1, site2)
-pointer.plot(sites, sign = "neg", start.yr = 1950, end.yr = NULL) 
+detr_s033 <- detrend(s033, method = "Spline", nyrs = 30)
+py <- pointer.rgc(s033)
+pyn <- pointer.norm(detr_s033, method = "Neuwirth")
+it <- interval.trend(s033)
+zchron <- pointer.zchron(detr_s033)
+comparison <- list(py, pyn, it, zchron)
+pointer.plot(comparison, sign = "neg", period = c(1950, 2013),
+             labels = c("py", "pyn", "it", "zchron")) 
 
-## Plot pointer years for multiple sites from pointer.norm output (method "Neuwirth")
+## Plot pointer years for different specifications of pointer.norm (method "Neuwirth")
 data(s033)
-site1 <- pointer.norm(s033, window = 5, method.thresh = "Neuwirth")
-site2 <- pointer.norm(s033, window = 11, method.thresh = "Neuwirth")
-sites <- list(site1, site2)
-site.names <- c("schneetal5", "schneetal11")
-pointer.plot(sites, start.yr = 1950, end.yr = NULL, labels = site.names) 
+w09 <- pointer.norm(detr_s033, window = 9, method.thresh = "Neuwirth")
+w11 <- pointer.norm(detr_s033, window = 11, method.thresh = "Neuwirth")
+w13 <- pointer.norm(detr_s033, method.thresh = "Neuwirth")
+comparison <- list(w09, w11, w13)
+pointer.plot(comparison, period = c(1950, 2007)) 
            
 }
 \author{
 Marieke van der Maaten-Theunissen and Ernst van der Maaten.
 }
-

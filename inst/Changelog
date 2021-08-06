@@ -1,35 +1,47 @@
-2015-03-06 Marieke van der Maaten-Theunissen <marieketheunissen@gmail.com>
+2015-03-06
 
 	* Version 1.0.0: first major release, submitted to CRAN
 	
-2015-03-06 Marieke van der Maaten-Theunissen <marieketheunissen@gmail.com>
+2015-03-06
 
 	* Version 1.0.1: small fix
 	* DESCRIPTION: change in Title and Description field
 
-2015-03-13 Marieke van der Maaten-Theunissen <marieketheunissen@gmail.com>
+2015-03-13
 
 	* Version 1.0.2: doc fix in function pointer.norm
   
-2015-09-18 Marieke van der Maaten-Theunissen <marieketheunissen@gmail.com>
+2015-09-18
 
 	* Version 1.1.0: new function lowpass13
 	* small fix in function pointer.rgc + small doc fixes (thanks to Gottfried Jetschke)
 	* NAMESPACE: 'stats' and 'graphics' added as imports
 	* CITATION file added
 	
-2016-02-28 Marieke van der Maaten-Theunissen <marieketheunissen@gmail.com>
+2016-02-28
 
 	* Version 1.1.1: small bug fix in function res.plot
 	* updated import tags for 'gridExtra', 'plyr' and 'TripleR'
 	
-2016-03-31 Marieke van der Maaten-Theunissen <marieketheunissen@gmail.com>
+2016-03-31
 
 	* Version 1.1.2: small bug fix in function pointer.norm
 	* additional argument 'sign' in function event.plot and pointer.plot
 	* vignette on basic package functionality added
 
-2016-11-## Marieke van der Maaten-Theunissen <marieketheunissen@gmail.com>
+2016-12-11
 
 	* Version 1.1.3: additional argument 'post' in function res.comp
 	* Citation to data s033 added
+	
+2021-08-06
+
+  * Version 2.0.0: new functions pointer.zchron and interval.trend; res.comp extended after Thurm et al. (2016) and Schwarz et al. (2020)
+  * rgc.plot and norm.plot: will be removed in the next version of the package. At current, both functions are deprecated.
+  * pointer.rgc and pointer.norm: have a new argument make.plot to create a plot (replacement for rgc.plot and norm.plot)
+  * pointer.norm: the arguments N.thresh1, N.thresh2 and N.thresh3 were combined in one argument N.thresh
+  * res.plot: updated according to extension res.comp
+  * small doc changes in several functions
+  * vignette adapted to new functionalities of the package
+  * NAMESPACE: 'DescTools' added as import, 'dplR' as depends
+  * CITATION file: Jetschke et al. (2019) added

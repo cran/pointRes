@@ -2,41 +2,37 @@
 % Please edit documentation in R/res.plot.R
 \name{res.plot}
 \alias{res.plot}
-\title{Plot resilience components}
+\title{Plot resilience indices}
 \usage{
-res.plot(list.name, select.yr = NULL, multi.panel = TRUE)
+res.plot(list.name, select.yr = NULL,
+         param = c("resist", "recov", "resil", "rel.resil",
+                   "rec.period", "avg.rec.rate",
+                   "tot.abs.grow.red", "tot.rel.grow.red",
+                   "avg.abs.grow.red", "avg.rel.grow.red"))
 }
 \arguments{
 \item{list.name}{a \code{list} as produced by \code{\link{res.comp}}.}
 
-\item{select.yr}{an \code{integer} specifying the (pointer) years to be plotted (e.g., c(1948, 1992)). Defaults to all years defined as negative pointer year with \code{\var{nb.series}} >= 5 in the \code{list} component \code{out.select}.}
+\item{select.yr}{an \code{integer} or \code{vector} specifying the year(s) to be plotted (e.g., c(1948, 1992)).}
 
-\item{multi.panel}{a \code{logical} specifying whether box plots should be plotted in a 2x2 grid. Defaults to TRUE.}
+\item{param}{a \code{character} string specifying the resilience index to be plotted. Argument matching is performed.}
 }
 \value{
-Four box plots.
+Box plot.
 }
 \description{
-The function creates box plots of the resilience components resistance, recovery, resilience and relative resilience as produced by \code{\link{res.comp}} for years identified as negative pointer years, as well as for selected years.
+The function creates box plots for selected years of the resilience indices as calculated by \code{\link{res.comp}}, and is intended for quick visualization.
 }
 \details{
-The function makes a box plot for each resilience component showing the full range of variation for individual trees in negative pointer years (or selected years). Box plots are only created for years with \code{\var{nb.series}} >= 5, as this value represents the number of statistics that a box plot represents in its' simplest form.
+The function creates a box plot for a selected resilience index showing the full range of variation for individual trees in specific years. Box plots are only created for years for which indices are available for >= 5 series, as this value represents the number of statistics that a box plot represents in its' simplest form.
 }
 \examples{
-## Plot resilience components for all defined pointer years
-# note: pointer years with < 5 series (here 1882) are not displayed (warning)
+## Plot the recovery period for three selected years
 data(s033)
-res <- res.comp(s033, nb.yrs = 4, res.thresh.neg = 40, series.thresh = 75)
-res.plot(res, select.yr = NULL, multi.panel = TRUE)
-
-## Plot resilience components for selected years
-# note: inclusion of non-pointer years (here 2002) results in a warning
-data(s033)
-res <- res.comp(s033, nb.yrs = 4, res.thresh.neg = 40, series.thresh = 75)
-res.plot(res, select.yr = c(1948, 1992, 2002), multi.panel = TRUE)
+res <- res.comp(s033)
+res.plot(res, select.yr = c(1976, 1992, 2003), param = "resist")
 
 }
 \author{
 Marieke van der Maaten-Theunissen and Ernst van der Maaten.
 }
-

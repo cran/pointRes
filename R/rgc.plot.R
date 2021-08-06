@@ -2,6 +2,7 @@
 #'
 #' @description The function creates a bar plot of mean relative growth changes from a \code{list} of the type as produced by \code{\link{pointer.rgc}} and highlights years identified as pointer years.
 #' 
+#' @name rgc.plot-deprecated
 #' @usage rgc.plot(list.name, start.yr = NULL, end.yr = NULL, 
 #'          sd.disp = FALSE, x.tick.major = 10, x.tick.minor = 5)
 #'
@@ -18,22 +19,23 @@
 #' Bar plot.
 #'
 #' @author Marieke van der Maaten-Theunissen and Ernst van der Maaten.
-#'
-#' @examples ## Plot mean relative growth changes and pointer years
-#' data(s033)
-#' py <- pointer.rgc(s033, nb.yrs = 4, rgc.thresh.pos = 60, rgc.thresh.neg = 40, 
-#'                   series.thresh = 75)
-#' rgc.plot(py, start.yr = 1950, end.yr = NULL,  
-#'          sd.disp = FALSE, x.tick.major = 10, x.tick.minor = 5)
 #' 
 #' @import ggplot2
 #' @importFrom plyr round_any
 #' 
-#' @export rgc.plot
+#' @seealso \code{\link{pointRes-deprecated}}
+#' @keywords internal
+NULL
+#' @rdname pointRes-deprecated
+#' @section \code{rgc.plot}:
+#' For \code{rgc.plot}, use \code{\link{pointer.rgc}}.
 #' 
-rgc.plot <- function(list.name, start.yr = NULL, end.yr = NULL,
+#' @export
+#' 
+rgc.plot <- function(list.name, start.yr = NULL, end.yr = NULL, 
                      sd.disp = FALSE, x.tick.major = 10, x.tick.minor = 5)
 {
+  .Deprecated("pointer.rgc")
   stopifnot(is.list(list.name))
   if(class(list.name)[1] != "pointer.rgc") {
     stop("'list.name' is no list output of function pointer.rgc")
@@ -66,27 +68,27 @@ rgc.plot <- function(list.name, start.yr = NULL, end.yr = NULL,
   data3 <- as.data.frame(data2)
   
   year <- nature <- dev_mean <- dev_sd <- NULL
-
+  
   nat.levels <- c(-1, 0, 1)
   fill.levels <- c("#636363", "#f0f0f0", "#636363")
   
   if(sd.disp) {
-  limits <- aes(ymax = dev_mean + dev_sd, ymin = dev_mean - dev_sd)
-  
-  pl <- ggplot(data3, aes(x = year, y = dev_mean, fill = factor(nature))) 
-  pl + geom_bar(stat = "identity", position = "identity", colour = "black") +
-    scale_fill_manual(limits = nat.levels, values = fill.levels) +
-    guides(fill = FALSE) +
-    scale_x_continuous(breaks = seq(start.yr3, end.yr3, x.tick.major), 
-                       minor_breaks = seq(start.yr3, end.yr3, x.tick.minor),
-                       limits = c(start.yr3-1, end.yr3+1)) +
-    ylab("mean growth deviation (%)") + theme_bw() +
-    geom_errorbar(limits, width=0.25, colour = "gray60")
+    limits <- aes(ymax = dev_mean + dev_sd, ymin = dev_mean - dev_sd)
+    
+    pl <- ggplot(data3, aes(x = year, y = dev_mean, fill = factor(nature))) 
+    pl + geom_bar(stat = "identity", position = "identity", colour = "black") +
+      scale_fill_manual(limits = factor(nat.levels), values = fill.levels) +
+      guides(fill = FALSE) +
+      scale_x_continuous(breaks = seq(start.yr3, end.yr3, x.tick.major), 
+                         minor_breaks = seq(start.yr3, end.yr3, x.tick.minor),
+                         limits = c(start.yr3-1, end.yr3+1)) +
+      ylab("mean growth deviation (%)") + theme_bw() +
+      geom_errorbar(limits, width=0.25, colour = "gray60")
   }
   else {
     pl <- ggplot(data3, aes(x = year, y = dev_mean, fill = factor(nature))) 
     pl + geom_bar(stat = "identity", position = "identity", colour = "black") +
-      scale_fill_manual(limits = nat.levels, values = fill.levels) +
+      scale_fill_manual(limits = factor(nat.levels), values = fill.levels) +
       guides(fill = FALSE) +
       scale_x_continuous(breaks = seq(start.yr3, end.yr3, x.tick.major), 
                          minor_breaks = seq(start.yr3, end.yr3, x.tick.minor),
@@ -94,5 +96,4 @@ rgc.plot <- function(list.name, start.yr = NULL, end.yr = NULL,
       ylab("mean growth deviation (%)") + theme_bw()
   }
 }
-
 

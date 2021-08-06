@@ -4,11 +4,13 @@
 \alias{pointer.rgc}
 \title{Calculate pointer years using the relative growth change method}
 \usage{
-pointer.rgc(data, nb.yrs = 4, rgc.thresh.pos = 60, rgc.thresh.neg = 40, 
-            series.thresh = 75)
+pointer.rgc(data, period = NULL, nb.yrs = 4, rgc.thresh.pos = 60, rgc.thresh.neg = 40, 
+            series.thresh = 75, make.plot = FALSE)
 }
 \arguments{
-\item{data}{a \code{data.frame} with raw tree-ring series as columns and years as rows (e.g., output of \code{read.rwl} of package dplR).}
+\item{data}{a \code{data.frame} with tree-ring series (raw or detrended) as columns and years as rows (e.g., output of \code{read.rwl} or \code{detrend} of package dplR).}
+
+\item{period}{a \code{vector} specifying the start and end year of the analysis. Defaults to the full period covered by the data.}
 
 \item{nb.yrs}{an \code{integer} specifying the number of preceding years to be used in calculating relative growth changes. Defaults to 4.}
 
@@ -17,6 +19,8 @@ pointer.rgc(data, nb.yrs = 4, rgc.thresh.pos = 60, rgc.thresh.neg = 40,
 \item{rgc.thresh.neg}{a \code{numeric} specifying the threshold below which a relative growth change (in percentage) for a specific tree and year is considered a negative event year. Defaults to 40.}
 
 \item{series.thresh}{a \code{numeric} specifying the minimum percentage of trees that should display a positive (or negative) event year for that year to be considered as positive (or negative) pointer year. Defaults to 75.}
+
+\item{make.plot}{a \code{logical} specifying whether a bar plot, showing mean relative growth changes, should be created. Pointer years are indicated with dark-gray bars. Defaults to FALSE.}
 }
 \value{
 The function returns a \code{list} containing the following components:
@@ -28,34 +32,40 @@ The function returns a \code{list} containing the following components:
 \item{}{\code{perc.pos} - percentage of trees showing a positive event year}
 \item{}{\code{perc.neg} - percentage of trees showing a negative event year}
 \item{}{\code{nature} - number indicating whether the year is a positive (1), negative (-1) or no pointer year (0)}
-\item{}{\code{dev_mean} - mean growth deviation in percentage over the available series}
-\item{}{\code{dev_sd} - standard deviation of the growth deviation}
+\item{}{\code{dev_mean} - mean growth deviation in percentage over the available series for each year}
+\item{}{\code{dev_sd} - standard deviation of the growth deviation for each year}
 \item{spec.param}{a \code{data.frame} specifying the arguments used in the calculation}
 }
 \description{
 The function calculates event and pointer years on a \code{data.frame} with tree-ring series using the relative growth change method, described as abrupt growth change method in Schweingruber et al. (1990). This method relates tree growth in year \code{\var{i}} to the average growth of \code{\var{n}} preceding years. Thresholds for event- and pointer-year calculations can be adjusted.
 }
 \details{
-The function calculates the ratio of tree growth in year \code{\var{i}} and the average growth of \code{\var{n}} preceding years for individual trees. Resulting relative growth changes are used to identify event years for trees, and these event years to define pointer years for the site.
+The function calculates the ratio of tree growth in year \code{\var{t}} and the average growth of \code{\var{n}} preceding years for individual trees. Resulting relative growth changes are used to identify event years for trees, and these event years to define pointer years for the site.
 
-Following Schweingruber et al. (1990), \code{\var{nb.yrs}}, \code{\var{rgc.thresh.pos}}, \code{\var{rgc.thresh.neg}} and \code{\var{series.thresh}} are set to 4, 60, 40 and 75 respectively, meaning that a positive or negative pointer year will be defined when at least 75\% of the tree-ring series display an event year with a growth increase or decrease of at least 60\% or 40\%, respectively, relative to the average growth in the 4 preceding years.
+Following Schweingruber et al. (1990), \code{\var{nb.yrs}}, \code{\var{rgc.thresh.pos}}, \code{\var{rgc.thresh.neg}} and \code{\var{series.thresh}} are set to 4, 60, 40 and 75 respectively, meaning that a positive or negative pointer year will be defined when at least 75\% of the tree-ring series display an event year with a growth increase or decrease of at least 60\% or 40\%, respectively, relative to the average growth in the four preceding years. Depending on the sensitivity of the tree-ring series, the thresholds \code{\var{rgc.thresh.pos}} and \code{\var{rgc.thresh.neg}} may be adjusted (e.g., lowered for more complacent series; Jetschke et al. 2019).
 
-Note that the resulting time series are truncated by \code{\var{nb.yrs}} at the beginning inherent to the calculation methods.
+Note that the resulting time series are truncated by \code{\var{nb.yrs}} at the beginning inherent to the calculation method.
 }
 \examples{
 ## Calculate pointer years on tree-ring series
 data(s033)
-py <- pointer.rgc(s033, nb.yrs = 4, rgc.thresh.pos = 60, rgc.thresh.neg = 40, 
-                  series.thresh = 75)
-py$out
+py1 <- pointer.rgc(s033)
+head(py1$out)
+
+## Calculate pointer years with user-defined arguments
+data(s033)
+py2 <- pointer.rgc(s033, period = c(1950,2010), nb.yrs = 5, rgc.thresh.pos = 50,
+                   rgc.thresh.neg = 50, series.thresh = 50, make.plot = TRUE)
+head(py2$out)
 
 }
-\author{
-Marieke van der Maaten-Theunissen and Ernst van der Maaten.
-}
 \references{
+Jetschke, G., van der Maaten, E. and van der Maaten-Theunissen, M. (2019) Towards the extremes: A critical analysis of pointer year detection methods. \emph{Dendrochronologia} 53: 55-62.
+
 Schweingruber, F.H., Eckstein, D., Serre-Bachet, F. and Bräker, O.U. (1990) Identification, presentation and interpretation of event years and pointer years in dendrochronology. \emph{Dendrochronologia} 8: 9-38.
 
 In writing the function, the code of the dplR function \code{pointer} (Pierre Mérian) was used as a reference.
 }
-
+\author{
+Marieke van der Maaten-Theunissen and Ernst van der Maaten.
+}

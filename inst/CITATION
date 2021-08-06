@@ -9,3 +9,14 @@ bibentry(bibtype = "Article",
 			person("Ernst", "van der Maaten"), person("Olivier", "Bouriaud")),
 		 key = "vdMTh2015",
 		 header = "To cite pointRes in publications, please use:")
+
+bibentry(bibtype = "Article",
+  		 title = "Towards the extremes: A critical analysis of pointer year detection methods",
+  		 journal = "Dendrochronologia",
+  		 volume = "53",
+	     pages = "55-62",
+	     year="2019",
+	     doi = "10.1016/j.dendro.2018.11.004",
+		 author = c(person("Gottfried", "Jetschke"), person("Ernst", "van der Maaten"), person("Marieke", "van der Maaten-Theunissen")),
+		 key = "GJ2019",
+		 header = "If you use the function pointer.zchron or interval.trend, please cite the following publication as well:")

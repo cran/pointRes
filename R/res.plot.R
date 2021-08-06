@@ -1,136 +1,101 @@
-#' Plot resilience components
+#' Plot resilience indices
 #'
-#' @description The function creates box plots of the resilience components resistance, recovery, resilience and relative resilience as produced by \code{\link{res.comp}} for years identified as negative pointer years, as well as for selected years. 
+#' @description The function creates box plots for selected years of the resilience indices as calculated by \code{\link{res.comp}}, and is intended for quick visualization.
 #' 
-#' @usage res.plot(list.name, select.yr = NULL, multi.panel = TRUE)
+#' @usage res.plot(list.name, select.yr = NULL,
+#'          param = c("resist", "recov", "resil", "rel.resil",
+#'                    "rec.period", "avg.rec.rate",
+#'                    "tot.abs.grow.red", "tot.rel.grow.red",
+#'                    "avg.abs.grow.red", "avg.rel.grow.red"))
 #'
 #' @param list.name a \code{list} as produced by \code{\link{res.comp}}.
-#' @param select.yr an \code{integer} specifying the (pointer) years to be plotted (e.g., c(1948, 1992)). Defaults to all years defined as negative pointer year with \code{\var{nb.series}} >= 5 in the \code{list} component \code{out.select}.
-#' @param multi.panel a \code{logical} specifying whether box plots should be plotted in a 2x2 grid. Defaults to TRUE.
+#' @param select.yr an \code{integer} or \code{vector} specifying the year(s) to be plotted (e.g., c(1948, 1992)).
+#' @param param a \code{character} string specifying the resilience index to be plotted. Argument matching is performed.
 #' 
-#' @details The function makes a box plot for each resilience component showing the full range of variation for individual trees in negative pointer years (or selected years). Box plots are only created for years with \code{\var{nb.series}} >= 5, as this value represents the number of statistics that a box plot represents in its' simplest form.
+#' @details The function creates a box plot for a selected resilience index showing the full range of variation for individual trees in specific years. Box plots are only created for years for which indices are available for >= 5 series, as this value represents the number of statistics that a box plot represents in its' simplest form.
 #'
 #' @return 
-#' Four box plots.
+#' Box plot.
 #'
 #' @author Marieke van der Maaten-Theunissen and Ernst van der Maaten.
 #'
-#' @examples ## Plot resilience components for all defined pointer years
-#' # note: pointer years with < 5 series (here 1882) are not displayed (warning)
+#' @examples ## Plot the recovery period for three selected years
 #' data(s033)
-#' res <- res.comp(s033, nb.yrs = 4, res.thresh.neg = 40, series.thresh = 75)
-#' res.plot(res, select.yr = NULL, multi.panel = TRUE)
-#'
-#' ## Plot resilience components for selected years
-#' # note: inclusion of non-pointer years (here 2002) results in a warning
-#' data(s033)
-#' res <- res.comp(s033, nb.yrs = 4, res.thresh.neg = 40, series.thresh = 75)
-#' res.plot(res, select.yr = c(1948, 1992, 2002), multi.panel = TRUE)
+#' res <- res.comp(s033)
+#' res.plot(res, select.yr = c(1976, 1992, 2003), param = "resist")
 #' 
 #' @import ggplot2
 #' @import stats
-#' @importFrom gridExtra grid.arrange
 #' @importFrom TripleR matrix2long
-#' @import graphics
 #' 
 #' @export res.plot
 #' 
-res.plot <- function(list.name, select.yr = NULL, multi.panel = TRUE)
+res.plot <- function(list.name, select.yr = NULL, param = c("resist", "recov", "resil", "rel.resil", "rec.period", "avg.rec.rate", "tot.abs.grow.red", "tot.rel.grow.red", "avg.abs.grow.red", "avg.rel.grow.red"))
 {
   stopifnot(is.list(list.name))
   if(class(list.name) != "res.comp") {
     stop("'list.name' is no list output of function res.comp")
   }
-  if(is.data.frame(list.name$out.select) == FALSE) {
+  if(is.matrix(list.name$resist) == FALSE) {
     stop("'list.name' is no list output of function res.comp")
   }
-  if(is.null(select.yr) && nrow(list.name$out.select) == 0) {
-    stop("no pointer years to display here")
+  if(is.null(select.yr)) {
+    stop("'select.yr' is NULL: please specify the years to be plotted")
   }
-  if(is.null(select.yr) && all(list.name$out.select[,"nb.series"] < 5)) {
-    stop("all pointer years have < 5 series and are not displayed")
-  }
-  if(is.null(select.yr) && TRUE %in% (list.name$out.select[,"nb.series"] < 5)) {
-    warning("pointer years with < 5 series are not displayed")
-  }
-  if(!is.null(select.yr) && all(subset(list.name$out, list.name$out[,"year"] %in% select.yr)[,"nb.series"] < 5)) {
-    stop("all selected years have < 5 series and are not displayed")
-  }
-  if(FALSE %in% (select.yr %in% list.name$out[,"year"])) {
+  
+  param2 <- match.arg(param, c("resist", "recov", "resil", "rel.resil", "rec.period", "avg.rec.rate", "tot.abs.grow.red", "tot.rel.grow.red", "avg.abs.grow.red", "avg.rel.grow.red"))
+  
+  list.param <- as.data.frame(list.name[[noquote(param2)]])
+  list.param[list.param == "Inf"] <- NA
+  list.param$nb.series <- rowSums(!is.na(list.param))
+  
+  if(FALSE %in% (select.yr %in% rownames(list.param))) {
     stop("the selection under 'select.yr' contains year(s) that are not in the dataset")
   }
-  if(TRUE %in% ((subset(list.name$out,
-                         list.name$out[,"year"] %in% select.yr)[,"nb.series"] < 5))) {
-    warning("selected years with < 5 series are not displayed")
+  
+  if(length(select.yr) == 1) {
+    yrs <- as.character(select.yr)
+    list.param2 <- subset(list.param,rownames(list.param) %in% select.yr & list.param[, "nb.series"] >= 5)
+    if(nrow(list.param2) == 0) {
+      stop("the year can not be displayed, as the selected index is available for < 5 series")
+    }
+    nb.series <- NULL
+    list.param2 <- subset(list.param2, select = -nb.series)
+    list.param2 <- matrix2long(list.param2, new.ids = FALSE)
+    colnames(list.param2) <- c("year","tree","value")
   }
-  if(FALSE %in% (select.yr %in% list.name$out.select[,"year"])) {
-    warning("the selection under 'select.yr' contains year(s) not identified as pointer year(s)")
+  else {
+    yrs <- as.character(select.yr)
+    list.param2 <- subset(list.param,rownames(list.param) %in% select.yr & list.param[, "nb.series"] >= 5)
+    if(FALSE %in% (yrs %in% rownames(list.param2))) {
+      warning("years for which the selected index is available for < 5 series are not displayed")
+    }
+    if(nrow(list.param2) == 0) {
+      stop("years can not be displayed, as the selected index is available for < 5 series in all cases")
+    }
+    yrs <- rownames(list.param2)
+    list.param2 <- subset(list.param2, select = -nb.series)
+    list.param2 <- matrix2long(list.param2, new.ids = FALSE)
+    colnames(list.param2) <- c("year","tree","value") 
   }
 
   year <- value <- NULL
-  
-  if(length(select.yr) == 0) {
-    data2 <- subset(list.name$out.select,list.name$out.select[, "nb.series"] >= 5)
-    if(nrow(data2) == 1) {
-      yrs <- as.character(data2[, "year"])
-      resist2 <- matrix2long(list.name$resist[yrs,], new.ids = FALSE)
-      recov2 <- matrix2long(list.name$recov[yrs,], new.ids = FALSE)
-      resil2 <- matrix2long(list.name$resil[yrs,], new.ids = FALSE)
-      rel.resil2 <- matrix2long(list.name$rel.resil[yrs,], new.ids = FALSE)
-      colnames(resist2) <- colnames(recov2) <- colnames(resil2) <- colnames(rel.resil2) <- c("tree","year","value")
-    }
-    else {
-      yrs <- as.character(data2[, "year"])
-      resist2 <- matrix2long(t(list.name$resist[yrs,]), new.ids = FALSE)
-      recov2 <- matrix2long(t(list.name$recov[yrs,]), new.ids = FALSE)
-      resil2 <- matrix2long(t(list.name$resil[yrs,]), new.ids = FALSE)
-      rel.resil2 <- matrix2long(t(list.name$rel.resil[yrs,]), new.ids = FALSE)
-      colnames(resist2) <- colnames(recov2) <- colnames(resil2) <- colnames(rel.resil2) <- c("tree","year","value")
-    }
-  }
-  else {
-    if(length(select.yr) == 1) {
-      data2 <- subset(list.name$out,list.name$out[,"year"] %in% select.yr & list.name$out[, "nb.series"] >= 5)
-      yrs <- as.character(data2[, "year"])
-      resist2 <- matrix2long(list.name$resist[yrs,], new.ids = FALSE)
-      recov2 <- matrix2long(list.name$recov[yrs,], new.ids = FALSE)
-      resil2 <- matrix2long(list.name$resil[yrs,], new.ids = FALSE)
-      rel.resil2 <- matrix2long(list.name$rel.resil[yrs,], new.ids = FALSE)
-      colnames(resist2) <- colnames(recov2) <- colnames(resil2) <- colnames(rel.resil2) <- c("tree","year","value")  
-    }
-    else {
-      data2 <- subset(list.name$out,list.name$out[,"year"] %in% select.yr & list.name$out[, "nb.series"] >= 5)
-      yrs <- as.character(data2[, "year"])
-      resist2 <- matrix2long(t(list.name$resist[yrs,]), new.ids = FALSE)
-      recov2 <- matrix2long(t(list.name$recov[yrs,]), new.ids = FALSE)
-      resil2 <- matrix2long(t(list.name$resil[yrs,]), new.ids = FALSE)
-      rel.resil2 <- matrix2long(t(list.name$rel.resil[yrs,]), new.ids = FALSE)
-      colnames(resist2) <- colnames(recov2) <- colnames(resil2) <- colnames(rel.resil2) <- c("tree","year","value")  
-    }
-  }
-
-    res1 <- ggplot(na.omit(resist2), aes(x = factor(year), y = value)) + 
-      geom_boxplot(fill = "#f0f0f0") + theme_bw() + guides(fill = FALSE) +
-      xlab("year") + ylab("resistance index") + scale_x_discrete(labels = yrs)
-    res2 <- ggplot(na.omit(recov2), aes(x = factor(year), y = value)) + 
-      geom_boxplot(fill = "#f0f0f0") + theme_bw() + guides(fill = FALSE) +
-      xlab("year") + ylab("recovery index") + scale_x_discrete(labels = yrs)
-    res3 <- ggplot(na.omit(resil2), aes(x = factor(year), y = value)) + 
-      geom_boxplot(fill = "#f0f0f0") + theme_bw() + guides(fill = FALSE) +
-      xlab("year") + ylab("resilience index") + scale_x_discrete(labels = yrs)
-    res4 <- ggplot(na.omit(rel.resil2), aes(x = factor(year), y = value)) + 
-      geom_boxplot(fill = "#f0f0f0") + theme_bw() + guides(fill = FALSE) +
-      xlab("year") + ylab("relative resilience index") + scale_x_discrete(labels = yrs)
+  index <- ifelse(param2 == "resist", "resistance index",
+                  ifelse(param2 == "recov", "recovery index",
+                         ifelse(param2 == "resil", "resilience index", 
+                                ifelse(param2 == "rel.resil", "relative resilience index",
+                                       ifelse(param2 == "rec.period", "recovery period",
+                                              ifelse(param2 == "avg.rec.rate", "average recovery rate",
+                                                     ifelse(param2 == "tot.abs.grow.red", "total absolute growth reduction",
+                                                            ifelse(param2 == "tot.rel.grow.red", "total relative growth reduction",
+                                                                   ifelse(param2 == "avg.abs.grow.red", "average absolute growth reduction",
+                                                                          ifelse(param2 == "avg.rel.grow.red", "average relative growth reduction"))))))))))
+  plot.param <- ggplot(na.omit(list.param2), aes(x = factor(year), y = value)) + 
+    geom_boxplot(fill = "#f0f0f0") + theme_bw() + guides(fill = "none") +
+    xlab("year") + ylab(index) + scale_x_discrete(labels = yrs)
     
-  if(multi.panel) {
-    grid.arrange(res1, res2, res3, res4)
-    }
-    else {
-      plot(res1)
-      plot(res2)
-      plot(res3)
-      plot(res4)
-    }
+  plot(plot.param)
+  message("Please note that the number of series upon which individual boxplots are based can be queried by calling the component 'nb.series' from the res.comp output. Numbers may deviate between years and indices, depending on tree-specific growth behaviour as well as characteristics inherent to the calculation methods")
 }
 
 

@@ -12,14 +12,15 @@ vignette: >
 library(pointRes)
 ```
 
-The package `pointRes` helps to analyze event years, pointer years and components of resilience for tree-ring datasets (e.g., tree-ring width or basal area increment) by offering highly flexible calculating and plotting functions. The analysis of pointer years and resilience components provides quantitative information on growth responses of trees to extreme events as well as on their ability to retain growth levels prior to disturbance. In the face of climate change, with a projected increase in intensity and frequency of extreme events, such information is highly important.
+The package `pointRes` helps to analyze event years, pointer years and different resilience indices for tree-ring datasets (e.g., tree-ring width or basal area increment) by offering highly flexible calculating and plotting functions. The analysis of pointer years and resilience indices provides quantitative information on growth responses of trees to extreme events as well as on their ability to retain growth levels prior to disturbance. In the face of climate change, with a projected increase in intensity and frequency of extreme events, such information is highly important.
 
-The package contains functions to calculate and plot event and pointer years. *Event years* are years with a remarkable growth increase or decrease at the individual-tree level, whereas the term *pointer year* refers to years with remarkable growth responses at the stand level (Schweingruber et al. 1990). To identify event and pointer years, different methods have been developed. Most established are methods of the type (i) normalization in a moving window, and (ii) relative growth change. `pointRes` contains customizable functions for both methods, which are illustrated below. 
+The package contains functions to calculate and plot event and pointer years. *Event years* are years with a remarkable growth increase or decrease at the individual-tree level, whereas the term *pointer year* refers to years with remarkable growth responses at the stand level (Schweingruber et al. 1990). To identify event and pointer years, different methods have been developed. Most established are methods of the type (i) normalization in a moving window, and (ii) relative growth change. `pointRes` contains customizable functions for both methods, as well as for the methods (iii) z-transformation of a site chronology and (iv) interval trend. All functions are illustrated in this vignette.
 
-Further, `pointRes` contains functions to calculate and plot components of tree resilience, including resistance, recovery, resilience and relative resilience after Lloret et al. (2011). *Resistance* is the ratio between the growth during and before an extreme event, *recovery* the ratio between the growth after and during an extreme event, *resilience* the ratio between the growth after and before an extreme event, and *relative resilience* the resilience weighted by the growth decrease experienced during an extreme event.
-Detailed information on `pointRes` can be found on the help pages of the functions, as well as in Van der Maaten-Theunissen et al. (2015). 
+Further, `pointRes` contains functions to calculate and plot measures of tree resilience after Lloret et al. (2011; i.e. resistance, recovery, (relative) resilience), Thurm et al. (2016; recovery period, total growth reduction) and Schwarz et al. (2020; average growth reduction, average recovery rate). *Resistance* is the ratio between the growth during and before an extreme event, *recovery* the ratio between the growth after and during an extreme event, *resilience* the ratio between the growth after and before an extreme event, and *relative resilience* the resilience weighted by the growth decrease experienced during an extreme event. *Recovery period* (or: 'growth recovery time') is the time needed to reach pre-disturbance growth levels again. *Total growth reduction* reflects the cumulative growth reduction in the year of disturbance as well as the associated years in the recovery period. *Average growth reduction* is the total growth reduction divided by the length of the recovery period. *Average recovery rate* is the mean percentual recovery over the recovery period.
 
-Throughout this vignette we will use the data set `s033` for illustration purposes. The data set comes with the package and presents tree-ring series for 20 European beech (*Fagus sylvatica* L.) trees from the forest reserve Schneetal, Bavaria, Germany. 
+Detailed information on `pointRes` can be found on the help pages of the functions, as well as in Van der Maaten-Theunissen et al. (2015). Jetschke et al. (2019) may be consulted for more detailed information on the characteristics and use of pointer-year detection methods.
+
+Throughout this vignette we will use the data set `s033` for illustration purposes. The data set comes with the package and presents tree-ring series for 20 European beech (*Fagus sylvatica* L.) trees from the forest reserve Schneetal, Bavaria, Germany (Príncipe et al. 2017). 
 
 ```{r}
 library(pointRes)
@@ -31,62 +32,71 @@ data(s033) # the result of s033 <- read.rwl('s033.rwl') - a function of the dplR
 ### Calculating event and pointer years
 
 #### Normalization in a moving window
-The normalization in a moving window method was initially proposed by Cropper (1979) for skeleton plotting. It produces time series of so-called Cropper values (C) by normalizing individual tree-ring series in a moving window with each year placed as central point. Thresholds on these Cropper values, which basically reflect the number of standard deviations (SD) from the local mean, are used to identify event years (e.g., |C| > 0.75 SD). In a next step, a threshold on the percentage of trees showing a negative or positive event year can be used to define negative or positive pointer years. A variant of this method, proposed by Neuwirth et al. (2007), distinguishes three intensity classes for event and pointer years, i.e., weak, strong and extreme. In `pointRes`, the function `pointer.norm` facilitates the normalization in a moving window method, sensu Cropper and sensu Neuwirth.
+The normalization in a moving window method was initially proposed by Cropper (1979) for skeleton plotting. It produces time series of so-called Cropper values (C) by normalizing individual tree-ring indices in a moving window of specified width with each year placed as central point. Thresholds on these Cropper values, which basically reflect the number of standard deviations (SD) from the local mean, are used to identify event years (e.g., |C| > 0.75 SD). In a next step, a threshold on the percentage of trees showing a negative or positive event year can be used to define negative or positive pointer years. A variant of this method, proposed by Neuwirth et al. (2007), distinguishes three intensity classes for event and pointer years, i.e., weak, strong and extreme. In `pointRes`, the function `pointer.norm` facilitates the normalization in a moving window method, sensu Cropper and sensu Neuwirth. Input data should be detrended tree-ring series.
 
 ```{r}
-pyc <- pointer.norm(s033, window = 5, method.thresh = "Cropper", C.thresh = 0.75, series.thresh = 75)
-pyn <- pointer.norm(s033, window = 5, method.thresh = "Neuwirth", N.thresh1 = 1, N.thresh2 = 1.28, N.thresh3 = 1.645, series.thresh = 75)
+detr_s033 <- detrend(s033, method = "Spline", nyrs = 30)
+pyc <- pointer.norm(detr_s033, period = NULL, window = 13, method.thresh = "Cropper", C.thresh = 0.75, series.thresh = 75, make.plot = FALSE)
+pyn <- pointer.norm(detr_s033, period = NULL, window = 13, method.thresh = "Neuwirth", N.thresh = c(1, 1.28, 1.645), series.thresh = 75, make.plot = FALSE)
 ```
 
 #### Relative growth change
-The method based on relative growth change, also referred to as abrupt growth change, relates tree growth in a particular year to the average growth of a specified number of preceding years (Schweingruber et al. 1986; 1990). Similar to the normalization in a moving window method, thresholds on relative growth changes can be set to define event years, and on a minimum percentage of trees showing an event year to define pointer years. In `pointRes`, the function `pointer.rgc` facilitates the relative growth change method.
+The relative growth change method, also referred to as abrupt growth change method, relates tree growth in a particular year to the average growth of a specified number of preceding years (Schweingruber et al. 1986; 1990). Similar to the normalization in a moving window method, thresholds on relative growth changes can be set to define event years, and on a minimum percentage of trees showing an event year to define pointer years. In `pointRes`, the function `pointer.rgc` facilitates the relative growth change method.
 
 ```{r}
-rgc <- pointer.rgc(s033, nb.yrs = 4, rgc.thresh.pos = 60, rgc.thresh.neg = 40, series.thresh = 75)
+rgc <- pointer.rgc(s033, period = NULL, nb.yrs = 4, rgc.thresh.pos = 60, rgc.thresh.neg = 40, series.thresh = 75, make.plot = FALSE)
+```
+
+#### Z-transformation of a site chronology
+This method calculates pointer years by developing and z-transforming a site chronology. Pointer years are defined over a threshold on the minimum of standard deviations that the site chronology should deviate in a particular year. To test whether the z-transformed chronology significantly differs from the selected threshold value, t-tests can be performed (robust or non-robust, depending whether or not a biweight robust mean was used in chronology building). In `pointRes`, the function `pointer.zchron` facilitates the z-transformation of a site chronology method.
+
+```{r}
+detr_s033 <- detrend(s033, method = "Spline", nyrs = 30)
+pz <- pointer.zchron(detr_s033, period = NULL, bi.weight = TRUE, z.thresh = 1, t.Test = FALSE, make.plot = FALSE) 
+```
+
+#### Calculating the percentage of rising (and descending) intervals
+The function calculates year-to-year growth changes for individual tree-ring series and defines interval trends for (the population of) trees using the pointer interval method according to Schweingruber et al. (1990), which is also extensively described in Jetschke et al. (2019). For each tree and year, the interval trend is defined as 1 if a relative change exceeds a certain positive threshold, as 0 if a relative (negative) change falls below minus that threshold and 0.5 otherwise; defaults to 0\%. The interval trend for a population is defined as the average interval trend of the individual trees. A year is considered a negative (or positive) pointer year if the percentage of trees showing a decreasing (or increasing) trend exceeds a threshold (defaults to 95\%).The minimum percentual growth change and the minimum percentage of trees that should display a negative (or positive) trend for that year to be considered as pointer year, can be adjusted.
+
+```{r}
+it <- interval.trend(s033, period = NULL, trend.thresh = 0, IT.thresh = 95, make.plot = FALSE) 
 ```
 
 ### Plotting event and pointer years
-The output of `pointer.norm` and `pointer.rgc` are lists, which contain (1) a matrix with Cropper values (for `pointer.norm`) or relative growth changes (for `pointer.rgc`), (2) a matrix indicating positive and negative event years for individual trees (intensity classes *weak*, *strong* and *extreme* are indicated for the `pointer.norm` method `Neuwirth`), (3) a summarizing output, and (4) a data frame listing the argument values used in the calculation (e.g., thresholds used for event and pointer year identification). The summarizing output contains annual data on the number of available tree-ring series, the percentage of trees showing positive or negative event years, the nature of pointer years, as well as on means and standard deviations of Cropper values (`pointer.norm`) or relative growth changes (`pointer.rgc`), for example:
-
-```{r}
-head(pyc$out) # first five lines of the summarizing 'out' component of list pyc
-```
-
-The output of `pointer.norm` and `pointer.rgc` can be conveniently displayed using the functions `norm.plot` and `rgc.plot`. These functions create a bar plot of either mean annual Cropper values or mean annual growth deviation (in percentage). In these bar plots, pointer years are indicated with grey fill colors. For the `pointer.norm` method `Neuwirth`, weak, strong and extreme pointer years are distinguished based on the most common event year class.
+If the argument `make.plot` in the functions `pointer.norm`, `pointer.rgc`, `pointer.zchron` and `interval.trend` is set *TRUE*, a plot is created. Depending on the function, a bar plot displaying mean annual Cropper values (`pointer.norm`) or mean annual growth deviations (in percentage; `pointer.rgc`), or a line plot displaying z-scores (`pointer.zchron`) or mean interval-trend values (`interval.trend`), is created. Pointer years are indicated with different symbols and (or) colors For the `pointer.norm` method `Neuwirth`, weak, strong and extreme pointer years are defined based on the most common event year class.
 
 ```{r, fig.width = 7, fig.height = 3.5, fig.retina = 3}
-rgc.plot(rgc, start.yr = 1950, end.yr = NULL, sd.disp = FALSE, x.tick.major = 10, x.tick.minor = 5)
+detr_s033 <- detrend(s033, method = "Spline", nyrs = 30)
+pyn <- pointer.norm(detr_s033, method = "Neuwirth", make.plot = TRUE)
 ```
 
-Next to bar plots, also dot plots for event years (i.e. for single trees) and pointer years (for multiple sites) can be created using the functions `event.plot` and `pointer.plot`, respectively. An example of a dot plot with event years, as defined using `pointer.norm` method `Neuwirth`, is provided below. 
+Besides bar and line plots, dot plots for event years (i.e. for single trees) and pointer years (for multiple sites) can be created using the functions `event.plot` and `pointer.plot`, respectively, whereby event-year plots can only be created with output of the functions `pointer.norm` and `pointer.rgc`, given the conceptually different approaches of `pointer.zchron` and `interval.trend`. An example of a dot plot with event years, as defined using `pointer.norm` method `Neuwirth`, is provided below. 
 
 ```{r, fig.width = 7, fig.height = 5.3, fig.retina = 3}
-event.plot(pyn, start.yr = 1950, end.yr = NULL, x.tick.major = 10, x.tick.minor = 5)
+event.plot(pyn, period = c(1950, 2007), x.tick.major = 10, x.tick.minor = 5)
 ```
 
-The optional argument `sign` allows to display positive or negative event or pointer years as well. A dot plot showing negative pointer years can be created as follows:
+The optional argument `sign` allows to display only positive, negative or both positive and negative event/pointer years. A dot plot comparing negative pointer years detected by different methods can, for example, be created as follows:
 
 ```{r, fig.width = 7, fig.height = 2, fig.retina = 3}
-pointer.plot(list(pyn,pyn), sign = "neg", start.yr = 1950, end.yr = NULL)
+pointer.plot(list(pyn,pyc,pz,it), sign = "neg", period = c(1950, 2007), labels = c("Neuwirth","Cropper","zChron","IT"))
 ```
 
-## Components of tree resilience
-The function `res.comp` calculates the resilience components resistance, recovery, resilience and relative resilience. As the component *resistance* is conceptually identical to the relative growth change method applied for years with low growth (i.e. the ratio of tree growth during and before disturbance), thresholds for negative event and pointer years can be set as in `pointer.rgc`. An optimal argument `post` allows to define a post-disturbance period of different length than the pre-disturbance period.
+The resulting warning is just a slight reminder that different methods of pointer year calculation have been applied to the datasets considered in `pointer.plot`.
+
+## Indices of tree resilience
+The function `res.comp` calculates the resilience indices after Lloret et al. (2011), Thurm et al. (2016) and Schwarz et al. (2020).  The argument `nb.yrs` specifies the number of years for pre- and post-disturbance periods to be considered in calculating resilience components after Lloret et al. (2011). With `max.yrs.rec` the maximum length of the recovery period to be considered can be defined.
 
 ```{r}
-res <- res.comp(s033, nb.yrs = 4, post = NULL, res.thresh.neg = 40, series.thresh = 75)
+res <- res.comp(s033, nb.yrs = c(4,4), max.yrs.rec = 10)
 ```
 
-The output of `res.comp` is structured in a similar way as for `pointer.rgc`, however, inherent to the concept of resistance, only negative pointer years are indicated in the summarizing output. Further, matrices and basic statistics are provided for resistance, recovery, resilience and relative resilience. An additional list component (`out.select`) presents a subset of the output for years identified as negative pointer years.
+The output of `res.comp` is a list of matrices for the various resilience indices.
 
-```{r}
-head(res$out.select)
-```
-
-The function `res.plot` uses the output of `res.comp` to create a box plot for each resilience component. By default, these box plots show the full range of variation in resilience components for negative pointer years, but alternatively they can be created for user-defined years. Box plots are only displayed for years with at least five tree-ring series available, as this is the number of statistics that a box plot represents in its simplest form.
+The function `res.plot` uses the output of `res.comp` to create a box plot for selected resilience indices. These box plots show the full range of variation for user-defined years. Box plots are only displayed for years for which indices are available for at least five tree-ring series, as this is the number of statistics that a box plot represents in its simplest form.
 
 ```{r, fig.width = 6, fig.height = 5.3, fig.retina = 3}
-res.plot(res, select.yr = NULL, multi.panel = TRUE)
+res.plot(res, select.yr = c(1976, 1992, 2003), param = "resist")
 ```
 
 ## Citing pointRes and R
@@ -104,12 +114,20 @@ citation("pointRes")
 
 Cropper, J.P. (1979) Tree-ring skeleton plotting by computer. *Tree-ring bulletin* **39**: 47–59.
 
-Lloret, F., Keeling, E., Sala, A. (2011) Components of tree resilience: effects of successive low-growth episodes in old ponderosa pine forests. *Oikos* **120**: 1909–1920.
+Jetschke, G., van der Maaten, E. and van der Maaten-Theunissen, M. (2019) Towards the extremes: a critical analysis of pointer year detection methods. *Dendrochronologia* **53**: 55-62.
 
-Neuwirth, B., Schweingruber, F., Winiger, M. (2007) Spatial patterns of central European pointer years from 1901-1971. *Dendrochronologia* **24**: 79–89.
+Lloret, F., Keeling, E. and Sala, A. (2011) Components of tree resilience: effects of successive low-growth episodes in old ponderosa pine forests. *Oikos* **120**: 1909–1920.
+
+Neuwirth, B., Schweingruber, F. and Winiger, M. (2007) Spatial patterns of central European pointer years from 1901-1971. *Dendrochronologia* **24**: 79–89.
+
+Príncipe, A., van der Maaten, E., van der Maaten-Theunissen, M., Struwe, T., Wilmking, M. and Kreyling, J. (2017) Low resistance but high resilience in growth of a major deciduous forest tree (*Fagus sylvatica* L.) in response to late spring frost in southern Germany. *Trees* **31**: 743–751.
+
+Schwarz, J., Skiadaresis, G., Kohler, M., Kunz, J., Schnabel, F., Vitali, V. and Bauhus, J. (2020) Quantifying growth responses of trees to drought — a critique of commonly used resilience indices and recommendations for future studies. *Current Forestry Reports* **6**: 185–200.
 
 Schweingruber, F., Albrecht, H., Beck, M. et al. (1986) Abrupte Zuwachsschwankungen in Jahrringabfolgen als ökologische Indikatoren. *Dendrochronologia* **4**: 125–183.
 
-Schweingruber, F., Eckstein D., Serre-Bachet, F., Bräker, U. (1990) Identification, presentation and interpretation of event years and pointer years in dendrochronology. *Dendrochronologia* **8**: 9–38.
+Schweingruber, F., Eckstein D., Serre-Bachet, F. and Bräker, U. (1990) Identification, presentation and interpretation of event years and pointer years in dendrochronology. *Dendrochronologia* **8**: 9–38.
 
-van der Maaten-Theunissen, M., van der Maaten, E., Bouriaud, O. (2015) pointRes: An R package to analyze pointer years and components of resilience. *Dendrochronologia* **35**: 34–38.
+Thurm, E.A., Uhl, E. and Pretzsch, H. (2016) Mixture reduces climate sensitivity of Douglas-fir stem growth. *Forest Ecology and Management* **376**: 205–220. 
+
+van der Maaten-Theunissen, M., van der Maaten, E. and Bouriaud, O. (2015) pointRes: An R package to analyze pointer years and components of resilience. *Dendrochronologia* **35**: 34–38.

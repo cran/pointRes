@@ -4,26 +4,26 @@
 \alias{pointer.norm}
 \title{Calculate pointer years using the normalization in a moving window method}
 \usage{
-pointer.norm(data, window = 5, method.thresh = c("Cropper", "Neuwirth"),
-             C.thresh = 0.75, N.thresh1 = 1, N.thresh2 = 1.28, 
-             N.thresh3 = 1.645, series.thresh = 75)
+pointer.norm(data, period = NULL, window = 13, method.thresh = c("Cropper", "Neuwirth"),
+             C.thresh = 0.75, N.thresh = c(1, 1.28, 1.645), series.thresh = 75, 
+             make.plot = FALSE)
 }
 \arguments{
-\item{data}{a \code{data.frame} with raw tree-ring series as columns and years as rows (e.g., output of \code{read.rwl} of package dplR), or a \code{data.frame} with filtered series (output of \code{\link{lowpass13}}).}
+\item{data}{a \code{data.frame} with detrended tree-ring series as columns and years as rows (e.g., output of \code{detrend} of package dplR), or a \code{data.frame} with filtered series (output of \code{\link{lowpass13}}).}
 
-\item{window}{an \code{integer} specifying the window size (i.e. number of years) to be used to calculate normalized growth deviations. Must be an odd number (>=3). Defaults to 5.}
+\item{period}{a \code{vector} specifying the start and end year of the analysis. Defaults to the full period covered by the data.}
+
+\item{window}{an \code{integer} specifying the window size (i.e. number of years) to be used to calculate normalized growth deviations. Must be an odd number (>=3). Defaults to 13.}
 
 \item{method.thresh}{a \code{character} string of \code{"Cropper"} or \code{"Neuwirth"}, specifying whether one absolute threshold or three intensity classes should be used for defining event years. Argument matching is performed.}
 
-\item{C.thresh}{a \code{numeric} specifying the threshold for identification of event years using method \code{"Cropper"}. Defaults to 0.75.}
+\item{C.thresh}{a (positive) \code{numeric} specifying the threshold for identification of event years using method \code{"Cropper"}. Defaults to 0.75.}
 
-\item{N.thresh1}{a \code{numeric} specifying the threshold for identification of weak event years using method \code{"Neuwirth"}. Defaults to 1.}
-
-\item{N.thresh2}{a \code{numeric} specifying the threshold for identification of strong event years using method \code{"Neuwirth"}. Defaults to 1.28.}
-
-\item{N.thresh3}{a \code{numeric} specifying the threshold for identification of extreme event years using method \code{"Neuwirth"}. Defaults to 1.645.}
+\item{N.thresh}{a \code{vector} specifying the (positive) thresholds for identification of weak, strong and extreme event years using method \code{"Neuwirth"}. Defaults to 1, 1.28 and 1.645, respectively.}
 
 \item{series.thresh}{a \code{numeric} specifying the minimum percentage of trees that should display a positive (or negative) event year for that year to be considered as positive (or negative) pointer year. Defaults to 75.}
+
+\item{make.plot}{a \code{logical} specifying whether a bar plot, showing mean Cropper values, should be created. Pointer years are indicated with dark-gray bars. If event years were defined using \code{method.thresh "Neuwirth"} (\code{\link{pointer.norm}}), different tones of gray indicate weak, strong and extreme pointer years, based on the most common event year class. Defaults to FALSE.}
 }
 \value{
 The function returns a \code{list} containing the following components:
@@ -59,35 +59,35 @@ The function returns a \code{list} containing the following components:
 \item{spec.param}{a \code{data.frame} specifying the arguments used in the calculation}
 }
 \description{
-The function calculates event and pointer years on a \code{data.frame} with tree-ring series using the normalization in a moving window method introduced by Cropper (1979; cf. Schweingruber et al. 1990). This method z-transforms tree growth in year \code{\var{i}} within a symmetric moving window of \code{\var{n}} years, thereby providing the number of standard deviations that tree growth deviates in individual years (Cropper values, C) from the window average. To identify event years, one absolute threshold on the number of standard deviations can be set (cf. Cropper 1979), or, alternatively, three intensity classes (cf. Neuwirth et al. 2007). Threshold values for defining event and pointer years can be adjusted.
+The function calculates event and pointer years on a \code{data.frame} with tree-ring series using the normalization in a moving window method introduced by Cropper (1979; cf. Schweingruber et al. 1990, Jetschke et al. 2019). This method locally z-transforms tree growth in year \code{\var{i}} within a symmetric moving window of \code{\var{n}} years, thereby providing the number of standard deviations that tree growth deviates in individual years (Cropper values, Ct) from the window average. To identify event years, one absolute threshold on the number of standard deviations can be set (Cropper 1979), or, alternatively, three intensity classes (Neuwirth et al. 2007). Threshold values for defining event and pointer years can be adjusted.
 
-Prior to the calculation of event and pointer years with \code{pointer.norm}, a 13-year weighted low-pass filter, as described by Fritts (1976), may be applied on the tree-ring series using \code{\link{lowpass13}}. According to Cropper (1979), such a filter improves the detection of event and pointer years for complacent series, whereas for sensitive series filtering has little effect.
+Prior to the calculation of event and pointer years with \code{pointer.norm}, a 13-year weighted low-pass filter, as described by Fritts (1976), may be applied on the tree-ring series using \code{\link{lowpass13}}. According to Cropper (1979), such a filter improves the detection of event and pointer years for complacent series, whereas for sensitive series filtering has little effect. Alternatively, a flexible detrending (e.g., using a cubic-smoothing spline with a 50\% frequency cut-off at 15 years) may be applied prior to \code{pointer.norm}.
 }
 \details{
-The function z-transforms tree growth in year \code{\var{i}} within a symmetric moving window of \code{\var{n}} years. For \code{method.thresh} \code{"Cropper"}, event years are defined as those years having absolute Cropper values above a specified threshold (defaults to |C| > 0.75). For \code{method.thresh} \code{"Neuwirth"}, three classes of distinct growth deviations can be defined, being 'weak', 'strong' and 'extreme' (defaults to |C| > 1, |C| > 1.28, and |C| > 1.645). The window size can be adjusted, as well as the minimum percentage of trees that should display a positive (or negative) event year for that year to be considered as positive (or negative) pointer year.
+The function locally z-transforms tree growth in year \code{\var{i}} within a symmetric moving window of \code{\var{n}} years. For \code{method.thresh} \code{"Cropper"}, event years are defined as those years having absolute Cropper values (Ct) above a specified threshold (defaults to |Ct| > 0.75). For \code{method.thresh} \code{"Neuwirth"}, three classes of distinct growth deviations can be defined, being 'weak', 'strong' and 'extreme' (defaults to |Ct| > 1, |Ct| > 1.28, and |Ct| > 1.645). The window size can be adjusted (defaults to 13 years), as well as the minimum percentage of trees that should display a positive (or negative) event year for that year to be considered as positive (or negative) pointer year (defaults to 75\%).
 
-Note that the resulting time series are truncated by \code{\var{(window-1)/2}} at both ends inherent to the calculation methods.
+Note that the resulting time series are truncated by \code{\var{(window-1)/2}} at both ends inherent to the calculation method.
 }
 \examples{
-## Calculate pointer years on tree-ring series using method.thresh "Cropper"
+## Calculate pointer years on detrended tree-ring series using method.thresh "Cropper"
 ## and a user-defined threshold for event-year definition of 1
 data(s033)
-py_c <- pointer.norm(s033, window = 5, method.thresh = "Cropper", 
-                     C.thresh = 1, series.thresh = 75)
-py_c$out
+detr_s033 <- detrend(s033, method = "Spline", nyrs = 30)
+pyc <- pointer.norm(detr_s033, method.thresh = "Cropper", C.thresh = 1)
+head(pyc$out)
 
-## Calculate pointer years on tree-ring series using method.thresh "Neuwirth"
+## Calculate pointer years on detrended tree-ring series using method.thresh "Neuwirth"
+## and a user-defined window of 11 years
 data(s033)
-py_n <- pointer.norm(s033, window = 5, method.thresh = "Neuwirth", 
-                     series.thresh = 75)
-py_n$out
+detr_s033 <- detrend(s033, method = "Spline", nyrs = 30)
+pyn <- pointer.norm(detr_s033, window = 11, method.thresh = "Neuwirth", make.plot = TRUE)
+head(pyn$out)
 
-}
-\author{
-Marieke van der Maaten-Theunissen and Ernst van der Maaten.
 }
 \references{
 Cropper, J.P. (1979) Tree-ring skeleton plotting by computer. \emph{Tree-Ring Bulletin} 39: 47-59.
+
+Jetschke, G., van der Maaten, E. and van der Maaten-Theunissen, M. (2019) Towards the extremes: A critical analysis of pointer year detection methods. \emph{Dendrochronologia} 53: 55-62.
 
 Fritts, H.C. (1976) Tree rings and climate. Academic Press Inc. (London) Ltd.
 
@@ -95,4 +95,6 @@ Neuwirth, B., Schweingruber, F.H. and Winiger, M. (2007) Spatial patterns of cen
 
 Schweingruber, F.H., Eckstein, D., Serre-Bachet, F. and Bräker, O.U. (1990) Identification, presentation and interpretation of event years and pointer years in dendrochronology. \emph{Dendrochronologia} 8: 9-38.
 }
-
+\author{
+Marieke van der Maaten-Theunissen and Ernst van der Maaten.
+}

@@ -1,40 +1,43 @@
 #' Plot pointer years for multiple sites
 #'
-#' @description The function creates a dot plot showing positive and (or) negative pointer years from \code{lists} of the type as produced by either \code{\link{pointer.norm}} or \code{\link{pointer.rgc}}.
+#' @description The function creates a dot plot showing positive and (or) negative pointer years from \code{lists} of the type as produced by \code{\link{pointer.norm}}, \code{\link{pointer.rgc}}, \code{\link{pointer.zchron}} and (or) \code{\link{interval.trend}}.
 #' 
 #' @usage pointer.plot(list.sites, sign = c("both", "pos", "neg"),
-#'              start.yr = NULL, end.yr = NULL, labels = NULL,
+#'              period = NULL, labels = NULL,
 #'              x.tick.major = 10, x.tick.minor = 5) 
 #'
-#' @param list.sites a \code{list} with \code{lists} as produced by either \code{\link{pointer.norm}} or \code{\link{pointer.rgc}} for individual sites (created using list(site1, site2,..)).
+#' @param list.sites a \code{list} with \code{lists} as produced by \code{\link{pointer.norm}}, \code{\link{pointer.rgc}}, \code{\link{pointer.zchron}} or \code{\link{interval.trend}} for individual sites (created using list(site1, site2,..)).
 #' @param sign a \code{character} string specifying whether both positive and negative (\code{"both"}), or only positive (\code{"pos"}) or negative (\code{"neg"}) pointer years should be displayed. Defaults to \code{"both"}.
-#' @param start.yr an \code{integer} specifying the first year to be plotted. Defaults to the first year with data if \code{\var{start.yr}} is \code{NULL}.
-#' @param end.yr an \code{integer} specifying the last year to be plotted. Defaults to the last year with data if \code{\var{end.yr}} is \code{NULL}.
+#' @param period a \code{vector} specifying the start and end year to be plotted. Defaults to the full period covered by the output of the pointer year analyses.
 #' @param labels a \code{character} vector with labels for the sites. Defaults to 'site 1, 2, .., \code{\var{i}}'.
 #' @param x.tick.major an \code{integer} controlling the major x-axis tick labels. Defaults to 10 years.
 #' @param x.tick.minor an \code{integer} controlling the minor x-axis ticks. Defaults to 5 years.
 #' 
-#' @details The function makes a dot plot showing pointer years for multiple sites. Positive and negative pointer years are indicated with different symbols. If event years were defined using \code{method.thresh "Neuwirth"} (\code{\link{pointer.norm}}), different tones of gray indicate weak, strong and extreme pointer years, based on the most common event year class.
+#' @details The function makes a dot plot showing pointer years for multiple sites. Positive and negative pointer years are indicated with different symbols an (or) colors.
 #' 
 #' @return 
 #' Dot plot.
 #'
 #' @author Marieke van der Maaten-Theunissen and Ernst van der Maaten.
 #'
-#' @examples ## Plot negative pointer years for multiple sites from pointer.rgc output
+#' @examples ## Plot negative pointer years for multiple sites (or different methods)
 #' data(s033)
-#' site1 <- pointer.rgc(s033, nb.yrs = 4)
-#' site2 <- pointer.rgc(s033, nb.yrs = 6)
-#' sites <- list(site1, site2)
-#' pointer.plot(sites, sign = "neg", start.yr = 1950, end.yr = NULL) 
+#' detr_s033 <- detrend(s033, method = "Spline", nyrs = 30)
+#' py <- pointer.rgc(s033)
+#' pyn <- pointer.norm(detr_s033, method = "Neuwirth")
+#' it <- interval.trend(s033)
+#' zchron <- pointer.zchron(detr_s033)
+#' comparison <- list(py, pyn, it, zchron)
+#' pointer.plot(comparison, sign = "neg", period = c(1950, 2013),
+#'              labels = c("py", "pyn", "it", "zchron")) 
 #'
-#' ## Plot pointer years for multiple sites from pointer.norm output (method "Neuwirth")
+#' ## Plot pointer years for different specifications of pointer.norm (method "Neuwirth")
 #' data(s033)
-#' site1 <- pointer.norm(s033, window = 5, method.thresh = "Neuwirth")
-#' site2 <- pointer.norm(s033, window = 11, method.thresh = "Neuwirth")
-#' sites <- list(site1, site2)
-#' site.names <- c("schneetal5", "schneetal11")
-#' pointer.plot(sites, start.yr = 1950, end.yr = NULL, labels = site.names) 
+#' w09 <- pointer.norm(detr_s033, window = 9, method.thresh = "Neuwirth")
+#' w11 <- pointer.norm(detr_s033, window = 11, method.thresh = "Neuwirth")
+#' w13 <- pointer.norm(detr_s033, method.thresh = "Neuwirth")
+#' comparison <- list(w09, w11, w13)
+#' pointer.plot(comparison, period = c(1950, 2007)) 
 #'            
 #' @import ggplot2
 #' @import stats
@@ -43,12 +46,12 @@
 #'       
 #' @export pointer.plot
 #' 
-pointer.plot <- function(list.sites, sign = c("both", "pos", "neg"), start.yr = NULL, end.yr = NULL, labels = NULL, x.tick.major = 10, x.tick.minor = 5) 
+pointer.plot <- function(list.sites, sign = c("both", "pos", "neg"), period = NULL, labels = NULL, x.tick.major = 10, x.tick.minor = 5) 
 {
   stopifnot(is.list(list.sites))
   for(i in 1:length(list.sites)) {
-    if(FALSE %in% (class(list.sites[[i]])[1] == "pointer.rgc") & FALSE %in% (class(list.sites[[i]])[1] == "pointer.norm")){
-      stop("'list.sites' contains list(s) that are no output of function pointer.rgc or pointer.norm")
+    if(FALSE %in% (class(list.sites[[i]])[1] == "pointer.norm") & FALSE %in% (class(list.sites[[i]])[1] == "pointer.rgc") & FALSE %in% (class(list.sites[[i]])[1] == "pointer.zchron") & FALSE %in% (class(list.sites[[i]])[1] == "interval.trend")){
+      stop("'list.sites' contains list(s) that are no output of functions pointer.norm, pointer.rgc, pointer.zchron or interval.trend")
     }
   }
   check2 <- vector()
@@ -56,15 +59,16 @@ pointer.plot <- function(list.sites, sign = c("both", "pos", "neg"), start.yr = 
     check2[i] <- class(list.sites[[i]])[1] == "pointer.norm"
   }
   if((TRUE %in% check2) && (FALSE %in% check2)){
-    stop("'list.sites' contains output of both function pointer.rgc and pointer.norm")
+    warning("'list.sites' contains output of multiple functions to calculate pointer years. When performing a method comparison, please ignore this warning")
   }
-  if(check2[1] == TRUE) {
+  if((TRUE %in% check2)) {
     check3 <- vector()
     for(i in 1:length(list.sites)){
       check3[i] <- class(list.sites[[i]])[2] == "Neuwirth"
     }
+    check3[is.na(check3)] <- FALSE
     if((TRUE %in% check3) && (FALSE %in% check3)) {
-      stop("'list.sites' contains output of function pointer.norm for both method Cropper and Neuwirth")
+      check3 <- check3
     }
   } else {
       check3 <- vector()
@@ -92,15 +96,27 @@ pointer.plot <- function(list.sites, sign = c("both", "pos", "neg"), start.yr = 
     vec.min[i] <- min(list.sites[[i]]$out[, "year"])
     vec.max[i] <- max(list.sites[[i]]$out[, "year"])
   }
-  min.yrs <- min(vec.min)
-  max.yrs <- max(vec.max)
-  yrs <- seq(min.yrs, max.yrs, 1)
+  yrs <- seq(min(vec.min), max(vec.max), 1)
   
-  if(!is.null(start.yr) && start.yr < min.yrs) {
-    stop("'start.yr' is out of bounds. By default (start.yr = NULL) the first year is displayed")
+  if(is.null(period)) {
+    start.yr <- min(vec.min)
+    end.yr <- max(vec.max)
+  } else{
+    if(!is.null(period) && length(period) == 1) {
+      stop("'period' needs a start and end year, e.g. c(1950, 2010), or should be NULL")
+    }
+    if(!is.null(period) && length(period) == 2 && is.numeric(period[1]) && is.numeric(period[2])) {
+      start.yr <- period[1] 
+      end.yr <- period[2]
+    }else{
+      stop("in 'period' the start and (or) end year are not numeric")
+    }
   }
-  if(!is.null(end.yr) && end.yr > max.yrs) {
-    stop("'end.yr' is out of bounds. By default (end.yr = NULL) the last year is displayed")
+  if(start.yr < min(vec.min)) {
+    stop("the start year in 'period' is out of bounds. By default (period = NULL) the calculations are performed over the whole period covered by the data")
+  }
+  if(end.yr > max(vec.max)) {
+    stop("the end year in 'period' is out of bounds. By default (period = NULL) the calculations are performed over the whole period covered by the data")
   }
   
   nature <- matrix(nrow = length(yrs), ncol = length(list.sites))
@@ -110,12 +126,10 @@ pointer.plot <- function(list.sites, sign = c("both", "pos", "neg"), start.yr = 
   }
   colnames(nature) <- labels2
   
-  start.yr2 <- ifelse(length(start.yr) != 0, start.yr, min.yrs)
-  end.yr2 <- ifelse(length(end.yr) != 0, end.yr, max.yrs)
-  start.yr3 <- round_any(start.yr2, 10, f = floor)
-  end.yr3 <- round_any(end.yr2, 5, f = ceiling)
+  start.yr2 <- round_any(start.yr, 10, f = floor)
+  end.yr2 <- round_any(end.yr, 5, f = ceiling)
   
-  if(check3[1] == TRUE) { 
+  if(all(check3 == TRUE)) { 
     int.class <- matrix(nrow = length(yrs), ncol = length(list.sites))
     rownames(int.class) <- yrs
     for(i in 1:length(list.sites)) {
@@ -133,45 +147,103 @@ pointer.plot <- function(list.sites, sign = c("both", "pos", "neg"), start.yr = 
     input2 <- na.omit(input)
     rownames(input2) <- NULL
     colnames(input2) <-c ("site", "year", "PYvalues", "int.class")
-    input3 <- subset(input2, input2[, "year"] >= start.yr2 & input2[, "year"] <= end.yr2)
+    input3 <- subset(input2, input2[, "year"] >= start.yr & input2[, "year"] <= end.yr)
     rownames(input3) <- NULL
     
     if(sign2 == "both") {
       int.levels <- c(-3, -2, -1, 0, 1, 2, 3)
-      fill.levels <- c("black", "#bdbdbd", "white" , "#bdbdbd", "white", "#bdbdbd", "black")
       label.levels <- c("negative extreme", "negative strong", "negative weak", "none", 
                         "positive weak", "positive strong", "positive extreme")
       shape.levels <- c(25, 25, 25, 95, 24, 24, 24)
+      fill.levels <- c("#b2182b", "#ef8a62", "#fddbc7", "#f7f7f7", "#d1e5f0", "#67a9cf", "#2166ac")
     }
     if(sign2 == "pos") {
       input3[input3$int.class < 0, "int.class"] <- 0
       int.levels <- c(0, 1, 2, 3)
-      fill.levels <- c("#bdbdbd", "white", "#bdbdbd", "black")
       label.levels <- c("other", "positive weak", "positive strong", "positive extreme")
       shape.levels <- c(95, 24, 24, 24)
+      fill.levels <- c("#f7f7f7", "#d1e5f0", "#67a9cf", "#2166ac")
     }
     if(sign2 == "neg") {
       input3[input3$int.class > 0, "int.class"] <- 0
       int.levels <- c(-3, -2, -1, 0)
-      fill.levels <- c("black", "#bdbdbd", "white" , "#bdbdbd")
       label.levels <- c("negative extreme", "negative strong", "negative weak", "other")
       shape.levels <- c(25, 25, 25, 95)
+      fill.levels <- c("#b2182b", "#ef8a62", "#fddbc7", "#f7f7f7")
     }
     
-    pl <- ggplot(input3, aes(x = year, y = site, shape = factor(int.class), 
-                             fill = factor(int.class)))
-    pl + geom_point(size = 2, colour = "black") +
-      scale_shape_manual(name = "pointer year class", limits = int.levels,
+    ggplot(input3, aes(x = year, y = site, shape = factor(int.class), 
+                             fill = factor(int.class))) +
+      geom_point(size = 2, colour = "black") +
+      scale_shape_manual(name = "pointer year class", limits = factor(int.levels),
                          labels = label.levels, values = shape.levels) +
-      scale_fill_manual(name = "pointer year class", limits = int.levels, 
+      scale_fill_manual(name = "pointer year class", limits = factor(int.levels), 
                         labels = label.levels, values = fill.levels) +
-      scale_x_continuous(breaks = seq(start.yr3, end.yr3, x.tick.major), 
-                         minor_breaks = seq(start.yr3, end.yr3, x.tick.minor),
-                         limits = c(start.yr3, end.yr3)) +
+      scale_x_continuous(breaks = seq(start.yr2, end.yr2, x.tick.major), 
+                         minor_breaks = seq(start.yr2, end.yr2, x.tick.minor),
+                         limits = c(start.yr2, end.yr2)) +
       theme_bw() + theme(legend.key = element_blank())
-  }
-  else {
-    nature2 <- nature[as.character(start.yr2:end.yr2),]
+  } else if(((TRUE %in% check3) && (FALSE %in% check3))) { 
+      int.class <- matrix(nrow = length(yrs), ncol = length(list.sites))
+      rownames(int.class) <- yrs
+      seqNeuwirth <- which(check3 == TRUE)
+      seqOther <- which(check3 != TRUE | is.na(check3))
+      
+      for(i in seqNeuwirth) {
+        int.class[as.character(list.sites[[i]]$out[, "year"]),i] <- ifelse(list.sites[[i]]$out[, "nature"] == (-1), max.col(list.sites[[i]]$out[,c(1, 2, 5, 4, 3, 6:11)][,6:8], ties.method = "first"), max.col(list.sites[[i]]$out[,c(1, 2, 5, 4, 3, 6:11)][,3:5], ties.method = "first"))
+      }
+      int.class[ int.class == 3 ] <- 4
+      int.class[ int.class == 2 ] <- 3
+      int.class[ int.class == 1 ] <- 2
+      
+      for(i in seqOther) {
+        int.class[as.character(list.sites[[i]]$out[, "year"]),i] <- abs(list.sites[[i]]$out[,][,"nature"])
+      }
+      colnames(int.class) <- labels2
+      
+      input <- matrix2long(t(nature), new.ids = FALSE)
+      input.int <- matrix2long(t(int.class), new.ids = FALSE)
+      input[,4] <- input.int[,3]
+      input[,4] <- ifelse(input[,3] == (-1), paste("-", input[,4], sep = ''), input[,4])
+      input[,4] <- ifelse(input[,3] == 0, 0, input[, 4])
+      input2 <- na.omit(input)
+      rownames(input2) <- NULL
+      colnames(input2) <-c ("site", "year", "PYvalues", "int.class")
+      input3 <- subset(input2, input2[, "year"] >= start.yr & input2[, "year"] <= end.yr)
+      rownames(input3) <- NULL
+      
+      if(sign2 == "both") {
+        int.levels <- c(-4, -3, -2, -1, 0, 1, 2, 3, 4)
+        label.levels <- c("negative extreme", "negative strong", "negative weak", "negative", "none", 
+                          "positive","positive weak", "positive strong", "positive extreme")
+        shape.levels <- c(25, 25, 25, 25, 95, 24, 24, 24, 24)
+        fill.levels <- c("#b2182b", "#ef8a62", "#fddbc7", "grey", "#f7f7f7", "grey", "#d1e5f0", "#67a9cf", "#2166ac")
+      }
+      if(sign2 == "pos") {
+        input3[input3$int.class < 0, "int.class"] <- 0
+        int.levels <- c(0, 1, 2, 3, 4)
+        label.levels <- c("other", "positive", "positive weak", "positive strong", "positive extreme")
+        shape.levels <- c(95, 24, 24, 24, 24)
+        fill.levels <- c("#f7f7f7", "grey", "#d1e5f0", "#67a9cf", "#2166ac")
+      }
+      if(sign2 == "neg") {
+        input3[input3$int.class > 0, "int.class"] <- 0
+        int.levels <- c(-4,-3, -2, -1, 0)
+        label.levels <- c("negative extreme", "negative strong", "negative weak", "negative", "other")
+        shape.levels <- c(25, 25, 25, 25, 95)
+        fill.levels <- c("#b2182b", "#ef8a62", "#fddbc7", "grey", "#f7f7f7")
+      }
+      
+      ggplot(input3, aes(x = year, y = site, shape = factor(int.class), fill = factor(int.class))) +
+        geom_point(size = 2, colour = "black") +
+        scale_shape_manual(name = "pointer year class", limits = factor(int.levels), labels = label.levels, values = shape.levels) +
+        scale_fill_manual(name = "pointer year class", limits = factor(int.levels), labels = label.levels, values = fill.levels) +
+        scale_x_continuous(breaks = seq(start.yr2, end.yr2, x.tick.major), 
+                           minor_breaks = seq(start.yr2, end.yr2, x.tick.minor),
+                           limits = c(start.yr2, end.yr2)) +
+        theme_bw() + theme(legend.key = element_blank())
+    } else {
+    nature2 <- nature[as.character(start.yr:end.yr),]
     input <- matrix2long(t(nature2), new.ids = FALSE)
     input2 <- na.omit(input)
     rownames(input2) <- NULL
@@ -195,13 +267,13 @@ pointer.plot <- function(list.sites, sign = c("both", "pos", "neg"), start.yr = 
       shape.levels <- c(25, 95)
     }
     
-    pl <- ggplot(input2, aes(x = year, y = site, shape = factor(PYvalues))) 
-    pl + geom_point(size = 2, colour = "black", fill = "#bdbdbd") +
-      scale_shape_manual(name = "event year", limits = int.levels,
+    ggplot(input2, aes(x = year, y = site, shape = factor(PYvalues))) +
+      geom_point(size = 2, colour = "black", fill = "grey") +
+      scale_shape_manual(name = "pointer year", limits = factor(int.levels),
                          labels = label.levels, values = shape.levels) + 
-      scale_x_continuous(breaks = seq(start.yr3, end.yr3, x.tick.major), 
-                         minor_breaks = seq(start.yr3, end.yr3, x.tick.minor),
-                         limits = c(start.yr3, end.yr3)) +
+      scale_x_continuous(breaks = seq(start.yr2, end.yr2, x.tick.major), 
+                         minor_breaks = seq(start.yr2, end.yr2, x.tick.minor),
+                         limits = c(start.yr2, end.yr2)) +
       theme_bw() + theme(legend.key = element_blank())
   }
 }

@@ -3,17 +3,15 @@
 #' @description The function creates a dot plot showing positive and (or) negative event years from a \code{list} of the type as produced by \code{\link{pointer.norm}} or \code{\link{pointer.rgc}}.
 #' 
 #' @usage event.plot(list.name, sign = c("both", "pos", "neg"),
-#'            start.yr = NULL, end.yr = NULL,
-#'            x.tick.major = 10, x.tick.minor = 5) 
+#'            period = NULL, x.tick.major = 10, x.tick.minor = 5) 
 #'
 #' @param list.name a \code{list} as produced by \code{\link{pointer.norm}} or \code{\link{pointer.rgc}}
 #' @param sign a \code{character} string specifying whether both positive and negative (\code{"both"}), or only positive (\code{"pos"}) or negative (\code{"neg"}) event years should be displayed. Defaults to \code{"both"}.
-#' @param start.yr an \code{integer} specifying the first year to be plotted. Defaults to the first year with data if \code{\var{start.yr}} is \code{NULL}.
-#' @param end.yr an \code{integer} specifying the last year to be plotted. Defaults to the last year with data if \code{\var{end.yr}} is \code{NULL}.
+#' @param period a \code{vector} specifying the start and end year to be plotted. Defaults to the full period covered by the output of the pointer year analysis.
 #' @param x.tick.major an \code{integer} controlling the major x-axis tick labels. Defaults to 10 years.
 #' @param x.tick.minor an \code{integer} controlling the minor x-axis ticks. Defaults to 5 years.
 #' 
-#' @details The function makes a dot plot showing event years for individual trees. Positive and negative event years are indicated with different symbols. If event years were defined using \code{method.thresh "Neuwirth"} (\code{\link{pointer.norm}}), different tones of gray indicate weak, strong and extreme event years.
+#' @details The function makes a dot plot showing event years for individual trees. Positive and negative event years are indicated with different symbols and (or) colors.
 #' 
 #' @return 
 #' Dot plot.
@@ -23,12 +21,13 @@
 #' @examples ## Plot event years from pointer.rgc output
 #' data(s033)
 #' py <- pointer.rgc(s033)
-#' event.plot(py, start.yr = 1950, end.yr = NULL) 
+#' event.plot(py) 
 #'
-#' ## Plot negative event years from pointer.norm output (method "Neuwirth")
+#' ## Plot negative event years from pointer.norm output (method "Neuwirth") for a specific period
 #' data(s033)
-#' py_n <- pointer.norm(s033, window = 5, method.thresh = "Neuwirth")
-#' event.plot(py_n, sign = "neg", start.yr = 1950, end.yr = NULL) 
+#' detr_s033 <- detrend(s033, method = "Spline", nyrs = 30)
+#' pyn <- pointer.norm(detr_s033, method.thresh = "Neuwirth")
+#' event.plot(pyn, sign = "neg", period = c(1950, 2007)) 
 #'            
 #' @import ggplot2
 #' @import stats
@@ -37,20 +36,34 @@
 #' 
 #' @export event.plot
 #' 
-event.plot <- function(list.name, sign = c("both", "pos", "neg"), start.yr = NULL, end.yr = NULL, x.tick.major = 10, x.tick.minor = 5) 
+event.plot <- function(list.name, sign = c("both", "pos", "neg"), period = NULL, x.tick.major = 10, x.tick.minor = 5) 
 {
   stopifnot(is.list(list.name))
-  if(FALSE %in% (class(list.name)[1] == "pointer.rgc") & FALSE %in% (class(list.name)[1] == "pointer.norm")) {
-    stop("'list.name' is no list output of function pointer.rgc or pointer.norm")
+  if(FALSE %in% (class(list.name)[1] == "pointer.norm") & FALSE %in% (class(list.name)[1] == "pointer.rgc")) {
+    stop("'list.name' is no list output of function pointer.norm or pointer.rgc or ")
   }
   if(is.matrix(list.name$EYvalues) == FALSE) {
-    stop("'list.name' is no list output of function pointer.rgc or pointer.norm")
+    stop("'list.name' is no list output of function pointer.norm or pointer.rgc")
   }
-  if(!is.null(start.yr) && start.yr < min(list.name$out[, "year"])) {
-    stop("'start.yr' is out of bounds. By default (start.yr = NULL) the first year is displayed")
+  if(is.null(period)) {
+    start.yr <- min(as.numeric(rownames(list.name$EYvalues)))
+    end.yr <- max(as.numeric(rownames(list.name$EYvalues)))
+  } else{
+    if(!is.null(period) && length(period) == 1) {
+      stop("'period' needs a start and end year, e.g. c(1950, 2010), or should be NULL")
+    }
+    if(!is.null(period) && length(period) == 2 && is.numeric(period[1]) && is.numeric(period[2])) {
+      start.yr <- period[1] 
+      end.yr <- period[2]
+    }else{
+      stop("in 'period' the start and (or) end year are not numeric")
+    }
   }
-  if(!is.null(end.yr) && end.yr > max(list.name$out[, "year"])) {
-    stop("'end.yr' is out of bounds. By default (end.yr = NULL) the last year is displayed")
+  if(start.yr < min(rownames(list.name$EYvalues))) {
+    stop("the start year in 'period' is out of bounds. By default (period = NULL) the calculations are performed over the whole period covered by the data")
+  }
+  if(end.yr > max(rownames(list.name$EYvalues))) {
+    stop("the end year in 'period' is out of bounds. By default (period = NULL) the calculations are performed over the whole period covered by the data")
   }
   if(x.tick.minor > x.tick.major) {
     stop("'x.tick.minor' should be smaller then 'x.tick.major'")
@@ -58,12 +71,10 @@ event.plot <- function(list.name, sign = c("both", "pos", "neg"), start.yr = NUL
  
   sign2 <- match.arg(sign, c("both", "pos", "neg"))
   
-  start.yr2 <- ifelse(length(start.yr) != 0, start.yr, min(list.name$out[, "year"]))
-  end.yr2 <- ifelse(length(end.yr) != 0, end.yr, max(list.name$out[, "year"]))
-  start.yr3 <- round_any(start.yr2, 10, f = floor)
-  end.yr3 <- round_any(end.yr2, 5, f = ceiling)
+  start.yr2 <- round_any(start.yr, 10, f = floor)
+  end.yr2 <- round_any(end.yr, 5, f = ceiling)
   
-  matrix <- list.name$EYvalues[as.character(start.yr2:end.yr2),]
+  matrix <- list.name$EYvalues[as.character(start.yr:end.yr),]
   input <- matrix2long(t(matrix), new.ids = FALSE)
   input2 <- na.omit(input) 
   rownames(input2) <- NULL
@@ -92,48 +103,47 @@ event.plot <- function(list.name, sign = c("both", "pos", "neg"), start.yr = NUL
       shape.levels <- c(25, 95)
     }
     
-    pl <- ggplot(input2, aes(x = year, y = tree, shape = factor(EYvalues))) 
-    pl + geom_point(size = 2, colour = "black", fill = "#bdbdbd") +
-      scale_shape_manual(name = "event year", limits = int.levels,
+    ggplot(input2, aes(x = year, y = tree, shape = factor(EYvalues))) +
+      geom_point(size = 2, colour = "black", fill = "black") +
+      scale_shape_manual(name = "event year", limits = factor(int.levels),
                          labels = label.levels, values = shape.levels) + 
       theme_bw() + theme(legend.key = element_blank()) +
-      scale_x_continuous(breaks = seq(start.yr3, end.yr3, x.tick.major), 
-                         minor_breaks = seq(start.yr3, end.yr3, x.tick.minor),
-                         limits = c(start.yr3, end.yr3))
+      scale_x_continuous(breaks = seq(start.yr2, end.yr2, x.tick.major), 
+                         minor_breaks = seq(start.yr2, end.yr2, x.tick.minor),
+                         limits = c(start.yr2, end.yr2))
   }
   else {
     if(sign2 == "both") {
       int.levels <- c(-3, -2, -1, 0, 1, 2, 3)
-      fill.levels <- c("black", "#bdbdbd", "white" , "#bdbdbd", "white", "#bdbdbd", "black")
       label.levels <- c("negative extreme", "negative strong", "negative weak",
                        "none", "positive weak", "positive strong", "positive extreme")
       shape.levels <- c(25, 25, 25, 95, 24, 24, 24)
+      fill.levels <- c("#b2182b", "#ef8a62", "#fddbc7", "#f7f7f7", "#d1e5f0", "#67a9cf", "#2166ac")
     }
     if(sign2 == "pos") {
       input2[input2$EYvalues < 0, "EYvalues"] <- 0
       int.levels <- c(0, 1, 2, 3)
-      fill.levels <- c("#bdbdbd", "white", "#bdbdbd", "black")
       label.levels <- c("other", "positive weak", "positive strong", "positive extreme")
       shape.levels <- c(95, 24, 24, 24)
+      fill.levels <- c("#f7f7f7", "#d1e5f0", "#67a9cf", "#2166ac")
     }
     if(sign2 == "neg") {
       input2[input2$EYvalues > 0, "EYvalues"] <- 0
       int.levels <- c(-3, -2, -1, 0)
-      fill.levels <- c("black", "#bdbdbd", "white" , "#bdbdbd")
       label.levels <- c("negative extreme", "negative strong", "negative weak", "other")
       shape.levels <- c(25, 25, 25, 95)
+      fill.levels <- c("#b2182b", "#ef8a62", "#fddbc7", "#f7f7f7")
     }
     
-    pl <- ggplot(input2, aes(x = year, y = tree, shape = factor(EYvalues),
-                             fill = factor(EYvalues))) 
-    pl + geom_point(size = 2, colour = "black") +
-      scale_shape_manual(name = "event year class", limits = int.levels,
+    ggplot(input2, aes(x = year, y = tree, shape = factor(EYvalues), fill = factor(EYvalues))) +
+      geom_point(size = 2, colour = "black") +
+      scale_shape_manual(name = "event year class", limits = factor(int.levels),
                          labels = label.levels, values = shape.levels) +
-      scale_fill_manual(name = "event year class", limits = int.levels, 
+      scale_fill_manual(name = "event year class", limits = factor(int.levels), 
                         labels = label.levels, values = fill.levels) +
       theme_bw() + theme(legend.key = element_blank()) +
-      scale_x_continuous(breaks = seq(start.yr3, end.yr3, x.tick.major), 
-                         minor_breaks = seq(start.yr3, end.yr3, x.tick.minor),
-                         limits = c(start.yr3, end.yr3))
+      scale_x_continuous(breaks = seq(start.yr2, end.yr2, x.tick.major), 
+                         minor_breaks = seq(start.yr2, end.yr2, x.tick.minor),
+                         limits = c(start.yr2, end.yr2))
   }
 }

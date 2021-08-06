@@ -25,12 +25,11 @@ data(s033)
 lp13_s033 <- lowpass13(s033)
 
 }
-\author{
-Marieke van der Maaten-Theunissen and Ernst van der Maaten.
-}
 \references{
 Cropper, J.P. (1979) Tree-ring skeleton plotting by computer. \emph{Tree-Ring Bulletin} 39: 47-59.
 
 Fritts, H.C. (1976) Tree rings and climate. Academic Press Inc. (London) Ltd.
 }
-
+\author{
+Marieke van der Maaten-Theunissen and Ernst van der Maaten.
+}

@@ -2,6 +2,7 @@
 #'
 #' @description The function creates a bar plot of mean Cropper values from a \code{list} of the type as produced by \code{\link{pointer.norm}} and highlights years identified as pointer years.
 #' 
+#' @name norm.plot-deprecated
 #' @usage norm.plot(list.name, start.yr = NULL, end.yr = NULL, 
 #'           sd.disp = FALSE, x.tick.major = 10, x.tick.minor = 5)
 #'
@@ -19,28 +20,22 @@
 #'
 #' @author Marieke van der Maaten-Theunissen and Ernst van der Maaten.
 #' 
-#' @examples ## Plot mean Cropper values and pointer years (method "Cropper")
-#' data(s033)
-#' py_c <- pointer.norm(s033, window = 5, method.thresh = "Cropper", 
-#'                      series.thresh = 75)
-#' norm.plot(py_c, start.yr = 1950, end.yr = NULL, 
-#'           sd.disp = FALSE, x.tick.major = 10, x.tick.minor = 5)
-#'
-#' ## Plot mean Cropper values and pointer years (method "Neuwirth")
-#' data(s033)
-#' py_n <- pointer.norm(s033, window = 5, method.thresh = "Neuwirth",
-#'                      series.thresh = 75)
-#' norm.plot(py_n, start.yr = 1950, end.yr = NULL, 
-#'           sd.disp = FALSE, x.tick.major = 10, x.tick.minor = 5)
-#'           
 #' @import ggplot2
 #' @importFrom plyr round_any
 #' 
-#' @export norm.plot
+#' @seealso \code{\link{pointRes-deprecated}}
+#' @keywords internal
+NULL
+#' @rdname pointRes-deprecated
+#' @section \code{norm.plot}:
+#' For \code{norm.plot}, use \code{\link{pointer.norm}}.
 #' 
-norm.plot <- function(list.name, start.yr = NULL, end.yr = NULL,
+#' @export
+#' 
+norm.plot <- function(list.name, start.yr = NULL, end.yr = NULL, 
                       sd.disp = FALSE, x.tick.major = 10, x.tick.minor = 5)
 {
+  .Deprecated("pointer.norm")
   stopifnot(is.list(list.name))
   if(class(list.name)[1] != "pointer.norm") {
     stop("'list.name' is no list output of function pointer.norm")
@@ -82,7 +77,7 @@ norm.plot <- function(list.name, start.yr = NULL, end.yr = NULL,
     if(sd.disp) {
       pl <- ggplot(data3, aes(x = year, y = Cvalues_mean, fill = factor(nature))) 
       pl + geom_bar(stat = "identity", position = "identity", colour = "black") +
-        scale_fill_manual(limits = nat.levels, values = fill.levels) +
+        scale_fill_manual(limits = factor(nat.levels), values = fill.levels) +
         guides(fill = FALSE) +
         scale_x_continuous(breaks = seq(start.yr3, end.yr3, x.tick.major), 
                            minor_breaks = seq(start.yr3, end.yr3, x.tick.minor),
@@ -93,7 +88,7 @@ norm.plot <- function(list.name, start.yr = NULL, end.yr = NULL,
     else {
       pl <- ggplot(data3, aes(x = year, y = Cvalues_mean, fill = factor(nature))) 
       pl + geom_bar(stat = "identity", position = "identity", colour = "black") +
-        scale_fill_manual(limits = nat.levels, values = fill.levels) +
+        scale_fill_manual(limits = factor(nat.levels), values = fill.levels) +
         guides(fill = FALSE) +
         scale_x_continuous(breaks = seq(start.yr3, end.yr3, x.tick.major), 
                            minor_breaks = seq(start.yr3, end.yr3, x.tick.minor),
@@ -115,7 +110,7 @@ norm.plot <- function(list.name, start.yr = NULL, end.yr = NULL,
     if(sd.disp) {
       pl <- ggplot(data3, aes(x = year, y = Cvalues_mean, fill = factor(int.class))) 
       pl + geom_bar(stat = "identity", position = "identity", colour = "black") +
-        scale_fill_manual(limits = int.levels, values = fill.levels) +
+        scale_fill_manual(limits = factor(int.levels), values = fill.levels) +
         guides(fill = FALSE) +
         scale_x_continuous(breaks = seq(start.yr3, end.yr3, x.tick.major), 
                            minor_breaks = seq(start.yr3, end.yr3, x.tick.minor),
@@ -126,7 +121,7 @@ norm.plot <- function(list.name, start.yr = NULL, end.yr = NULL,
     else {
       pl <- ggplot(data3, aes(x = year, y = Cvalues_mean, fill = factor(int.class))) 
       pl + geom_bar(stat = "identity", position = "identity", colour = "black") +
-        scale_fill_manual(limits = int.levels, values = fill.levels) +
+        scale_fill_manual(limits = factor(int.levels), values = fill.levels) +
         guides(fill = FALSE) +
         scale_x_continuous(breaks = seq(start.yr3, end.yr3, x.tick.major), 
                            minor_breaks = seq(start.yr3, end.yr3, x.tick.minor),

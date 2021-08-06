@@ -2,68 +2,55 @@
 % Please edit documentation in R/res.comp.R
 \name{res.comp}
 \alias{res.comp}
-\title{Calculate resilience components: resistance, recovery, resilience and relative resilience}
+\title{Calculate resilience indices}
 \usage{
-res.comp(data, nb.yrs = 4, post = NULL, res.thresh.neg = 40, series.thresh = 75)
+res.comp(data, nb.yrs = c(4,4), max.yrs.rec = 10)
 }
 \arguments{
-\item{data}{a \code{data.frame} with tree-ring series as columns and years as rows (e.g., output of \code{read.rwl}, \code{bai.in} or \code{bai.out} of package dplR)}
+\item{data}{a \code{data.frame} with tree-ring series (raw or detrended) as columns and years as rows (e.g., output of \code{read.rwl}, \code{bai.in} or \code{bai.out} of package dplR)}
 
-\item{nb.yrs}{an \code{integer} specifying the number of years for pre- and (or) post-disturbance periods to be considered in calculating resilience components. Defaults to 4.}
+\item{nb.yrs}{a \code{vector} specifying the number of years for pre- and post-disturbance periods to be considered in calculating resilience components after Lloret et al. (2011). Defaults to 4 for both periods.}
 
-\item{post}{an \code{integer} specifying the number of years for post-disturbance periods. Defaults to \code{\var{nb.yrs}}. Optional argument in case pre- and post-period lengths should differ.}
-
-\item{res.thresh.neg}{a \code{numeric} specifying the threshold below which the resistance, expressed as a percentual change (i.e. relative growth reduction), is considered a negative event year for individual trees and years. Defaults to 40.}
-
-\item{series.thresh}{a \code{numeric} specifying the minimum percentage of trees that should display a negative event year for that year to be considered as negative pointer year. Defaults to 75.}
+\item{max.yrs.rec}{a \code{numeric} specifying the maximum length of the recovery period to be considered. Defaults to 10.}
 }
 \value{
-#' The function returns a \code{list} containing the following components:
+The function returns a \code{list} containing the following components:
 \item{resist}{a \code{matrix} with resistance values (i.e. relative growth changes) for individual tree-ring series}
-\item{EYvalues}{a \code{matrix} indicating negative (-1) and non-event years (0) for individual tree-ring series}
 \item{recov}{a \code{matrix} with recovery values for individual tree-ring series}
 \item{resil}{a \code{matrix} with resilience values for individual tree-ring series}
 \item{rel.resil}{a \code{matrix} with relative resilience values for individual tree-ring series}
-\item{out}{a \code{data.frame} containing the following columns:}
-\item{}{\code{year} - time stamp}
-\item{}{\code{nb.series} - number of series considered}
-\item{}{\code{perc.neg} - percentage of trees showing a negative event year}
-\item{}{\code{nature} - number indicating whether the year is a negative (-1) or no pointer year (0)}
-\item{}{\code{resist_mean} - mean resistance as percentual change over the available series}
-\item{}{\code{resist_sd} - standard deviation of the resistance}
-\item{}{\code{recov_mean} - mean recovery as percentual change over the available series}
-\item{}{\code{recov_sd} - standard deviation of the recovery}
-\item{}{\code{resil_mean} - mean resilience as percentual change over the available series}
-\item{}{\code{resil_sd} - standard deviation of the resilience}
-\item{}{\code{rel.resil_mean} - mean relative resilience calculated over the available series}
-\item{}{\code{rel.resil_sd} - standard deviation of the relative resilience}
-\item{out.select}{a \code{data.frame} containing a subset of rows from \code{out} that provide all statistics for years that were identified as negative pointer years}
+\item{rec.period}{a \code{matrix} with recovery periods for individual tree-ring series in years with decimal places (cf. Thurm et al. 2016). In case of no growth reduction (and thus no recovery), 0 is given as output. Inf indicates that no recovery occurred within the period as specified by \code{\var{max.yrs.rec}}}
+\item{avg.rec.rate}{a \code{matrix} with average recovery rates for individual tree-ring series as percentage, calculated as 1 / \code{\var{rec.period}} * 100. In case of no growth reduction (and thus no recovery), NA is given as output. Inf indicates that no recovery occurred within the period as specified by \code{\var{max.yrs.rec}}}
+\item{tot.abs.grow.red}{a \code{matrix} with total absolute growth reduction values for individual tree-ring series. 0 and Inf are given as output as for \code{\var{rec.period}}}
+\item{tot.rel.grow.red}{a \code{matrix} with total growth reduction for individual tree-ring series expressed as percentage. 0 and Inf are given as output as for \code{\var{rec.period}}}
+\item{avg.abs.grow.red}{a \code{matrix} with average absolute growth reduction, i.e. total absolute growth reduction divided by the number of full years needed for recovery. 0 and Inf are given as output as for \code{\var{rec.period}}}
+\item{avg.rel.grow.red}{a \code{matrix} with average growth reduction expressed as percentage. 0 and Inf are given as output as for \code{\var{rec.period}}}
+\item{nb.series}{a \code{data.frame} with the number of series for which the diverse indices could be calculated, with years in rows and indices in columns}
 \item{spec.param}{a \code{data.frame} specifying the arguments used in the calculation}
 }
 \description{
-The function calculates resilience components on a \code{data.frame} of tree-ring series after Lloret et al. (2011), useful to analyze growth of individual trees prior, during and after extreme events / disturbances. The component 'resistance' is conceptually identical to 'abrupt growth changes' as described in Schweingruber et al. (1990). To identify negative event and pointer years, thresholds can be set as for the function \code{\link{pointer.rgc}}. 'Recovery' is the ability of tree growth to recover after disturbance, whereas 'resilience' reflects the ability of trees to reach pre-disturbance growth levels. Weighting of the resilience by the experienced growth reduction results in 'relative resilience'.
+The function calculates resilience indices on a \code{data.frame}, e.g., of tree-ring series, after Lloret et al. (2011; i.e. resistance, recovery, (relative) resilience), Thurm et al. (2016; recovery period, total growth reduction) and Schwarz et al. (2020; average growth reduction, average recovery rate), useful to analyze growth responses of individual trees prior, during and after extreme events / disturbances. The component 'resistance' is conceptually identical to 'abrupt growth changes' as described in Schweingruber et al. (1990; cf. \code{\link{pointer.rgc}}). 'Recovery' is the ability of tree growth to recover after disturbance, whereas 'resilience' reflects the ability of trees to reach pre-disturbance growth levels. Weighting of the resilience by the experienced growth reduction results in 'relative resilience'. 'Recovery period' (or: 'growth recovery time') is the time needed to reach pre-disturbance growth levels again. 'Total growth reduction' reflects the cumulative growth reduction in the year of disturbance as well as the associated years in the recovery period. 'Average growth reduction' is the total growth reduction divided by the length of the recovery period. 'Average recovery rate' is the mean percentual recovery over the recovery period.
 }
 \details{
-The function calculates the resilience components resistance, recovery, resilience and relative resilience as described in Lloret et al. (2011). A threshold on resistance can be set to identify negative event years for trees (cf. \code{\var{rgc.thresh.neg}} in function \code{\link{pointer.rgc}}), which are used to define negative pointer years for the site.
+The function calculates various resilience indices after Lloret et al. (2011), Thurm et al. (2016) and Schwarz et al. (2020). The output provides different matrices with resilience indices for individual tree-ring series and years.
 
-If \code{\var{nb.yrs}}, \code{\var{res.thresh.neg}} and \code{\var{series.thresh}} are set to 4, 40 and 75 respectively, a negative pointer year will be defined when at least 75\% of the tree-ring series display an event year with resistance values indicating a growth decrease of at least 40\%, relative to the average growth in the 4 preceding years. The output provides the resilience components for all possible years, as well as for the selected pointer years separately.
-
-Note that the resulting time series are truncated at both ends by the number of years specified in \code{\var{nb.yrs}} (and \code{\var{post}}), inherent to the calculation methods.
+In calculating resilience indices the number of pre- and post disturbance years (\code{\var{nb.yrs}}), as well as the maximum number of years to be considered in defining the recovery period (\code{\var{max.yrs.rec}}) can be specified.
 }
 \examples{
-## Calculate resilience components on tree-ring series
+## Calculate resilience indices on tree-ring series
 data(s033)
-res <- res.comp(s033, nb.yrs = 4, post = NULL, res.thresh.neg = 40, series.thresh = 75)
-res$out
-res$out.select
+res <- res.comp(s033)
 
-}
-\author{
-Marieke van der Maaten-Theunissen and Ernst van der Maaten.
 }
 \references{
 Lloret, F., Keeling, E.G. and Sala, A. (2011) Components of tree resilience: effects of successive low-growth episodes in old ponderosa pine forests. \emph{Oikos} 120: 1909-1920.
 
-Schweingruber, F.H., Eckstein, D., Serre-Bachet, F. and \enc{Bräker}{Braker}, O.U. (1990) Identification, presentation and interpretation of event years and pointer years in dendrochronology. \emph{Dendrochronologia} 8: 9-38.
-}
+Schwarz, J., Skiadaresis, G., Kohler, M., Kunz, J., Schnabel, F., Vitali, V. and Bauhus, J. (2020) Quantifying growth responses of trees to drought — a critique of commonly used resilience indices and recommendations for future studies. \emph{Current Forestry Reports} 6: 185-200.
 
+Schweingruber, F.H., Eckstein, D., Serre-Bachet, F. and \enc{Bräker}{Braker}, O.U. (1990) Identification, presentation and interpretation of event years and pointer years in dendrochronology. \emph{Dendrochronologia} 8: 9-38.
+
+Thurm, E.A., Uhl, E. and Pretzsch, H. (2016) Mixture reduces climate sensitivity of Douglas-fir stem growth. \emph{Forest Ecology and Management} 376: 205-220.
+}
+\author{
+Marieke van der Maaten-Theunissen, Ernst van der Maaten and Mario Trouillier.
+}
