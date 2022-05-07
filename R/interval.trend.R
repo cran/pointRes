@@ -17,11 +17,7 @@
 #' The function returns a \code{list} containing the following components:
 #' \item{perc.diff}{a \code{matrix} with percentual growth changes for individual tree-ring series}
 #' \item{ITvalues}{a \code{matrix} indicating positive (1), negative (0) and no interval trends (0.5) for individual tree-ring series}
-#' \item{out}{a \code{data.frame} containing the following columns:}
-#' \item{}{\code{year} - time stamp}
-#' \item{}{\code{nb.series} - number of series considered}
-#' \item{}{\code{nature} - number indicating whether the year is a positive (1), negative (-1) or no pointer year (0)}
-#' \item{}{\code{IT} - mean overall interval trend}
+#' \item{out}{a \code{data.frame} containing the following columns: \code{year} - time stamp, \code{nb.series} - number of series considered, \code{nature} - number indicating whether the year is a positive (1), negative (-1) or no pointer year (0), and \code{IT} - mean overall interval trend}
 #' \item{spec.param}{a \code{data.frame} specifying the arguments used in the calculation}
 #'
 #' @author Marieke van der Maaten-Theunissen, Ernst van der Maaten and Gottfried Jetschke.

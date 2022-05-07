@@ -33,7 +33,7 @@
 res.plot <- function(list.name, select.yr = NULL, param = c("resist", "recov", "resil", "rel.resil", "rec.period", "avg.rec.rate", "tot.abs.grow.red", "tot.rel.grow.red", "avg.abs.grow.red", "avg.rel.grow.red"))
 {
   stopifnot(is.list(list.name))
-  if(class(list.name) != "res.comp") {
+  if(inherits(list.name, "res.comp") == FALSE) {
     stop("'list.name' is no list output of function res.comp")
   }
   if(is.matrix(list.name$resist) == FALSE) {

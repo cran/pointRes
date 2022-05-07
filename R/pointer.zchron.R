@@ -18,11 +18,7 @@
 #' @return 
 #' The function returns a \code{list} containing the following components:
 #' \item{TRIsite}{a \code{data.frame} with the calculated site chronology and corresponding sample depth (output of \code{chron} of package dplR)}
-#' \item{out}{a \code{data.frame} containing the following columns:}
-#' \item{}{\code{year} - time stamp}
-#' \item{}{\code{nb.series} - number of series considered}
-#' \item{}{\code{nature} - number indicating whether the year is a positive (1), negative (-1) or no pointer year (0)}
-#' \item{}{\code{AVGztrans} - z-transformed site chronology}
+#' \item{out}{a \code{data.frame} containing the following columns: \code{year} - time stamp, \code{nb.series} - number of series considered, \code{nature} - number indicating whether the year is a positive (1), negative (-1) or no pointer year (0), and \code{AVGztrans} - z-transformed site chronology}
 #' \item{spec.param}{a \code{data.frame} specifying the arguments used in the calculation}
 #'
 #' @author Marieke van der Maaten-Theunissen, Ernst van der Maaten and Gottfried Jetschke.

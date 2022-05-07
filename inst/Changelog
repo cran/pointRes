@@ -45,3 +45,10 @@
   * vignette adapted to new functionalities of the package
   * NAMESPACE: 'DescTools' added as import, 'dplR' as depends
   * CITATION file: Jetschke et al. (2019) added
+  
+2022-05-07
+
+  * Version 2.0.1: small doc fixes
+  * rgc.plot and norm.plot: were now removed (in previous version deprecated)
+  * CITATION file: Van der Maaten-Theunissen et al. (2021) added
+  

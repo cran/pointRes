@@ -18,7 +18,7 @@
 #' \item{recov}{a \code{matrix} with recovery values for individual tree-ring series}
 #' \item{resil}{a \code{matrix} with resilience values for individual tree-ring series}
 #' \item{rel.resil}{a \code{matrix} with relative resilience values for individual tree-ring series}
-#' \item{rec.period}{a \code{matrix} with recovery periods for individual tree-ring series in years with decimal places (cf. Thurm et al. 2016). In case of no growth reduction (and thus no recovery), 0 is given as output. Inf indicates that no recovery occurred within the period as specified by \code{\var{max.yrs.rec}}}
+#' \item{rec.period}{a \code{matrix} with recovery periods for individual tree-ring series in years with decimal places (cf. Fig. 2 in Thurm et al. 2016). In case of no growth reduction (and thus no recovery), 0 is given as output. Inf indicates that no recovery occurred within the period as specified by \code{\var{max.yrs.rec}}}
 #' \item{avg.rec.rate}{a \code{matrix} with average recovery rates for individual tree-ring series as percentage, calculated as 1 / \code{\var{rec.period}} * 100. In case of no growth reduction (and thus no recovery), NA is given as output. Inf indicates that no recovery occurred within the period as specified by \code{\var{max.yrs.rec}}}
 #' \item{tot.abs.grow.red}{a \code{matrix} with total absolute growth reduction values for individual tree-ring series. 0 and Inf are given as output as for \code{\var{rec.period}}}
 #' \item{tot.rel.grow.red}{a \code{matrix} with total growth reduction for individual tree-ring series expressed as percentage. 0 and Inf are given as output as for \code{\var{rec.period}}}

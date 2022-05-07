@@ -26,14 +26,7 @@ pointer.rgc(data, period = NULL, nb.yrs = 4, rgc.thresh.pos = 60, rgc.thresh.neg
 The function returns a \code{list} containing the following components:
 \item{rgc}{a \code{matrix} with relative growth changes for individual tree-ring series}
 \item{EYvalues}{a \code{matrix} indicating positive (1), negative (-1) and non-event years (0) for individual tree-ring series}
-\item{out}{a \code{data.frame} containing the following columns:}
-\item{}{\code{year} - time stamp}
-\item{}{\code{nb.series} - number of series considered}
-\item{}{\code{perc.pos} - percentage of trees showing a positive event year}
-\item{}{\code{perc.neg} - percentage of trees showing a negative event year}
-\item{}{\code{nature} - number indicating whether the year is a positive (1), negative (-1) or no pointer year (0)}
-\item{}{\code{dev_mean} - mean growth deviation in percentage over the available series for each year}
-\item{}{\code{dev_sd} - standard deviation of the growth deviation for each year}
+\item{out}{a \code{data.frame} containing the following columns: \code{year} - time stamp, \code{nb.series} - number of series considered, \code{perc.pos} - percentage of trees showing a positive event year, \code{perc.neg} - percentage of trees showing a negative event year, \code{nature} - number indicating whether the year is a positive (1), negative (-1) or no pointer year (0), \code{dev_mean} - mean growth deviation in percentage over the available series for each year, and \code{dev_sd} - standard deviation of the growth deviation for each year}
 \item{spec.param}{a \code{data.frame} specifying the arguments used in the calculation}
 }
 \description{

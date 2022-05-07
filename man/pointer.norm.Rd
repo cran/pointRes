@@ -31,31 +31,13 @@ The function returns a \code{list} containing the following components:
 \itemize{\item{for \code{method.thresh} \code{"Cropper"}:}}
 \item{Cvalues}{a \code{matrix} with Cropper values for individual tree-ring series}
 \item{EYvalues}{a \code{matrix} indicating positive (1), negative (-1) and non-event years (0) for individual tree-ring series}
-\item{out}{a \code{data.frame} containing the following columns:}
-\item{}{\code{year} - time stamp}
-\item{}{\code{nb.series} - number of series considered}
-\item{}{\code{perc.pos} - percentage of trees showing a positive event year}
-\item{}{\code{perc.neg} - percentage of trees showing a negative event year}
-\item{}{\code{nature} - number indicating whether the year is a positive (1), negative (-1) or no pointer year (0)}
-\item{}{\code{Cvalues_mean} - mean Cropper value over the available series}
-\item{}{\code{Cvalues_sd} - standard deviation of Cropper values}
+\item{out}{a \code{data.frame} containing the following columns: \code{year} - time stamp, \code{nb.series} - number of series considered, \code{perc.pos} - percentage of trees showing a positive event year, \code{perc.neg} - percentage of trees showing a negative event year, \code{nature} - number indicating whether the year is a positive (1), negative (-1) or no pointer year (0), \code{Cvalues_mean} - mean Cropper value over the available series, and \code{Cvalues_sd} - standard deviation of Cropper values}
 \item{spec.param}{a \code{data.frame} specifying the arguments used in the calculation}
 
 \itemize{\item{for \code{method.thresh} \code{"Neuwirth"}:}}
 \item{Cvalues}{a \code{matrix} with Cropper values for individual tree-ring series}
 \item{EYvalues}{a \code{matrix} indicating weak (1/-1), strong (2/-2) and extreme (3/-3) positive/negative event years, as well as non-event years (0) for individual tree-ring series}
-\item{out}{a \code{data.frame} containing the following columns:}
-\item{}{\code{year} - time stamp}
-\item{}{\code{nb.series} - number of series considered}
-\item{}{\code{perc.pos.extreme} - percentage of trees showing a positive extreme event year}
-\item{}{\code{perc.pos.strong} - percentage of trees showing a positive strong event year}
-\item{}{\code{perc.pos.weak} - percentage of trees showing a positive weak event year}
-\item{}{\code{perc.neg.weak} - percentage of trees showing a negative weak event year}
-\item{}{\code{perc.neg.strong} - percentage of trees showing a negative strong event year}
-\item{}{\code{perc.neg.extreme} - percentage of trees showing a negative extreme event year}
-\item{}{\code{nature} - number indicating whether the year is a positive (1), negative (-1) or no pointer year (0)}
-\item{}{\code{Cvalues_mean} - mean Cropper value over the available series}
-\item{}{\code{Cvalues_sd} - standard deviation of Cropper values}
+\item{out}{a \code{data.frame} containing the following columns: \code{year} - time stamp, \code{nb.series} - number of series considered, \code{perc.pos.extreme} - percentage of trees showing a positive extreme event year, \code{perc.pos.strong} - percentage of trees showing a positive strong event year, \code{perc.pos.weak} - percentage of trees showing a positive weak event year, \code{perc.neg.weak} - percentage of trees showing a negative weak event year, \code{perc.neg.strong} - percentage of trees showing a negative strong event year, \code{perc.neg.extreme} - percentage of trees showing a negative extreme event year, \code{nature} - number indicating whether the year is a positive (1), negative (-1) or no pointer year (0), \code{Cvalues_mean} - mean Cropper value over the available series, \code{Cvalues_sd} - standard deviation of Cropper values}
 \item{spec.param}{a \code{data.frame} specifying the arguments used in the calculation}
 }
 \description{
