@@ -52,3 +52,8 @@
   * rgc.plot and norm.plot: were now removed (in previous version deprecated)
   * CITATION file: Van der Maaten-Theunissen et al. (2021) added
   
+2023-05-04
+
+  * Version 2.0.2: small fix in pointer.rgc to circumvent warning message of ggplot2:" 'guides («scale> = FALSE)' is deprecated. Please use 'guides («scale> = "none")' instead."
+  * CITATION file: Jetschke et al. (2023) added
+  

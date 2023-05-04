@@ -161,7 +161,7 @@ pointer.rgc <- function(data, period = NULL, nb.yrs = 4, rgc.thresh.pos = 60, rg
     pl <- ggplot(data3, aes(x = year, y = dev_mean, fill = factor(nature))) +
       geom_bar(stat = "identity", position = "identity", colour = "black") +
       scale_fill_manual(limits = factor(nat.levels), values = fill.levels) +
-      guides(fill = FALSE) +
+      guides(fill = "none") +
       scale_x_continuous(breaks = seq(start.yr2, end.yr2, 10), 
                          minor_breaks = seq(start.yr2, end.yr2, 5),
                          limits = c(start.yr2-1, end.yr2+1)) +

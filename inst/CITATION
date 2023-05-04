@@ -33,3 +33,14 @@ bibentry(bibtype = "Article",
 		 author = c(person("Gottfried", "Jetschke"), person("Ernst", "van der Maaten"), person("Marieke", "van der Maaten-Theunissen")),
 		 key = "GJ2019",
 		 header = "If you use the function pointer.zchron or interval.trend, please cite the following publication as well:")
+		 
+bibentry(bibtype = "Article",
+  		 title = "Pointer years revisited: Does one method fit all? A clarifying discussion",
+  		 journal = "Dendrochronologia",
+  		 volume = "78",
+	     pages = "126064",
+	     year="2023",
+	     doi = "10.1016/j.dendro.2023.126064",
+		 author = c(person("Gottfried", "Jetschke"), person("Ernst", "van der Maaten"), person("Marieke", "van der Maaten-Theunissen")),
+		 key = "GJ2023",
+		 header = "Pointer year detection is a delicate issue. Please consult the following publication:")
